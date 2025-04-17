@@ -1,0 +1,69 @@
+import React, { useState } from "react";
+import HeaderDropdown from "@/components/HeaderDropdown";
+
+export default function Header({userData}) {
+    console.log(userData);
+  const [searchQuery, setSearchQuery] = useState("");
+  // const [userData, setUserData] = useState(null);
+  return (
+    <header className="d-flex justify-content-center p-4 relative">
+      <div className="d-flex justify-content-between w-100">
+        {/* Add a Home Button */}
+            <a href="/home" className="d-flex align-items-center">
+              <button>
+                <img src="/hobbscussion.png" alt="Logo" className="w-32 m-auto" />
+              </button>
+            </a>
+            {/* Add a search bar */}
+        <div className="d-flex m-4">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                window.location.href = `/search?query=${searchQuery}`;
+              }
+            }}
+            className="form-control"
+          />
+          <button
+            className="btn btn-primary ml-2"
+            onClick={() => {
+              console.log("Search query:", searchQuery);
+              window.location.href = `/search?q=${searchQuery}`;
+            }}
+          >
+            Search
+          </button>
+        </div>
+        <div className="d-flex align-items-center">
+          <div className="d-flex align-items-center mr-4">
+            {userData && userData.avatar ? (
+              <img
+                src={userData.avatar}
+                alt="User"
+                className="rounded-circle"
+                style={{ width: "32px", height: "32px" }}
+              />
+            ) : (
+              <></>
+            )}
+            <span className="ml-2">
+              {userData ? userData.username : "Placeholder"}
+            </span>
+          </div>
+          <div className="relative">
+            <HeaderDropdown
+              signOut={() => {
+                document.cookie = "";
+                window.location.href = "/";
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
