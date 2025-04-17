@@ -456,9 +456,48 @@ app.post('/lessons/create', async (req, res) => {
             success: false,
             error: 'Please fill out all fields',
         });
+    };
+
+    const user = await verifyAuthorization(req);
+
+    const database = dbClient.db('lessonsData');
+
+    const lessons = database.collection('lessons');
+
+    const lesson = {
+        id: uuidv4(),
+        name: lessonName,
+        description: lessonDescription,
+        content: lessonContent,
+        creator: user.id,
+        dateCreated: Date.now(),
+    };
+
+    await lessons.insertOne(lesson);
+    return res.send({
+        success: true,
+        lessonId: lesson.id,
+    });
+
+
+});
+
+app.get('/api/lesson/:id', async (req, res) => {
+    const id = req.params.id;
+    const database = dbClient.db('lessonsData');
+    const lessons = database.collection('lessons');
+    const lesson = await lessons.findOne({ id: id });
+    if (!lesson) {
+        return res.send({
+            success: false,
+            error: 'No lesson with that id',
+        });
     }
 
-
+    return res.send({
+        success: true,
+        lesson: lesson,
+    });
 });
 
 app.listen(9000, () => {

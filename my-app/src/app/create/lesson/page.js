@@ -87,7 +87,7 @@ export default function Lesson() {
                         const data = await response.json();
                         if (data.success) {
                             alert('Lesson created successfully!');
-                            window.location.href = '/lessons';
+                            window.location.href = '/lessons/' + data.lesson.id;
                         } else {
                             alert('Error creating lesson: ' + data.error);
                         }
