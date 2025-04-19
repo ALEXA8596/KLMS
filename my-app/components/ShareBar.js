@@ -13,8 +13,8 @@ import {
 } from "react-share";
 
 const ShareBar = ({ post }) => {
-    const shareUrl = window.location.href; // Or any specific URL you want to share
-    const title = post.title; // Assuming 'post' is the post object
+    const shareUrl = window.location.href;
+    const title = post.name; 
 
     return (
         <div className="flex items-center space-x-2">

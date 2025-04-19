@@ -469,7 +469,7 @@ app.post('/lessons/create', async (req, res) => {
         name: lessonName,
         description: lessonDescription,
         content: lessonContent,
-        creator: user.id,
+        creatorId: user.id,
         dateCreated: Date.now(),
     };
 
@@ -493,6 +493,10 @@ app.get('/api/lesson/:id', async (req, res) => {
             error: 'No lesson with that id',
         });
     }
+
+    const author = await database.collection('users').findOne({ id: lesson.creatorId });
+
+    lesson.creatorName = author;
 
     return res.send({
         success: true,

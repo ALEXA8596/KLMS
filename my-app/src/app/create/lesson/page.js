@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCog, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 const cookie = require('cookie');
 
-import HeaderDropdown from '@/components/HeaderDropdown';
 import Header from '@/components/Header'; // Assuming you have a Header component in your components directory
 import MDEditor from '@uiw/react-md-editor';
 
