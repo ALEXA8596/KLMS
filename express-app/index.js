@@ -127,7 +127,7 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
-//   const rememberMe = req.body.rememberMe;
+  //   const rememberMe = req.body.rememberMe;
 
   const database = dbClient.db("userData");
   const userData = database.collection("users");
@@ -325,181 +325,23 @@ app.get("/search", async (req, res) => {
   });
 });
 
-// Course Routes
-app.post("/course/create", async (req, res) => {
-  const authorization = req.headers.authorization;
-  if (!authorization) {
-    return res.send({
-      success: false,
-      error: "No authorization token provided",
-    });
-  }
-
-  if (!verifyAuthorization(req))
-    return res.send({ success: false, error: "Unauthorized" });
-
-  const { title, description, tags } = req.body;
-
-  const course = {
-    id: uuidv4(),
-    title,
-    description,
-    tags: tags || [],
-    creator: user.id,
-    dateCreated: Date.now(),
-    units: [],
-    enrolledStudents: [],
-    published: false,
-  };
-
-  const courses = database.collection("courses");
-  await courses.insertOne(course);
-
-  return res.send({
-    success: true,
-    courseId: course.id,
-  });
-});
-
-app.post("/course/:courseId/unit/create", async (req, res) => {
-  const { courseId } = req.params;
-  const { title, description, order } = req.body;
-
-  // Verify authorization
-  if (!verifyAuthorization(req))
-    return res.send({ success: false, error: "Unauthorized" });
-
-  const courses = database.collection("courses");
-  const course = await courses.findOne({ id: courseId });
-
-  if (!course) return res.send({ success: false, error: "Course not found" });
-  if (course.creator !== user.id)
-    return res.send({ success: false, error: "Not course owner" });
-
-  const unit = {
-    id: uuidv4(),
-    title,
-    description,
-    order,
-    lessons: [],
-    dateCreated: Date.now(),
-  };
-
-  await courses.updateOne({ id: courseId }, { $push: { units: unit } });
-
-  return res.send({ success: true, unitId: unit.id });
-});
-
-app.post("/course/:courseId/unit/:unitId/lesson/create", async (req, res) => {
-  const { courseId, unitId } = req.params;
-  const { title, content, type } = req.body;
-
-  // Verify authorization
-  if (!verifyAuthorization(req))
-    return res.send({ success: false, error: "Unauthorized" });
-
-  const courses = database.collection("courses");
-  const course = await courses.findOne({ id: courseId });
-
-  if (!course) return res.send({ success: false, error: "Course not found" });
-  if (course.creator !== user.id)
-    return res.send({ success: false, error: "Not course owner" });
-
-  const lesson = {
-    id: uuidv4(),
-    title,
-    content,
-    type, // 'markdown', 'html', or 'quiz'
-    dateCreated: Date.now(),
-  };
-
-  await courses.updateOne(
-    { id: courseId, "units.id": unitId },
-    { $push: { "units.$.lessons": lesson } }
-  );
-
-  return res.send({ success: true, lessonId: lesson.id });
-});
-
-app.post("/course/:courseId/enroll", async (req, res) => {
-  const { courseId } = req.params;
-
-  // Verify authorization
-  if (!verifyAuthorization(req))
-    return res.send({ success: false, error: "Unauthorized" });
-
-  const courses = database.collection("courses");
-  const course = await courses.findOne({ id: courseId });
-
-  if (!course) return res.send({ success: false, error: "Course not found" });
-  if (course.enrolledStudents.includes(user.id)) {
-    return res.send({ success: false, error: "Already enrolled" });
-  }
-
-  await courses.updateOne(
-    { id: courseId },
-    { $push: { enrolledStudents: user.id } }
-  );
-
-  // Initialize progress tracking
-  const progress = {
-    courseId,
-    userId: user.id,
-    completedLessons: [],
-    dateStarted: Date.now(),
-  };
-
-  await database.collection("progress").insertOne(progress);
-
-  return res.send({ success: true });
-});
-
-app.post("/course/:courseId/lesson/:lessonId/complete", async (req, res) => {
-  const { courseId, lessonId } = req.params;
-
-  // Verify authorization
-  const token = req.headers.authorization?.split(" ")[1];
-  const database = dbClient.db("userData");
-  const user = await database.collection("users").findOne({
-    sessionCookies: { $elemMatch: { cookie: token } },
-  });
-
-  if (!user) return res.send({ success: false, error: "Unauthorized" });
-
-  await database
-    .collection("progress")
-    .updateOne(
-      { courseId, userId: user.id },
-      { $addToSet: { completedLessons: lessonId } }
-    );
-
-  return res.send({ success: true });
-});
-
-app.get("/course/:courseId", async (req, res) => {
-  const { courseId } = req.params;
-  const database = dbClient.db("userData");
-  const course = await database.collection("courses").findOne({ id: courseId });
-
-  if (!course) return res.send({ success: false, error: "Course not found" });
-
-  return res.send({ success: true, course });
-});
-
 app.post("/lessons/create", async (req, res) => {
-  const lessonName = req.body.name;
-  const lessonDescription = req.body.description;
-  const lessonContent = req.body.content;
+  // const lessonName = req.body.name;
+  // const lessonDescription = req.body.description;
+  // const lessonContent = req.body.content;
+
+  const { name, description, content, parentId } = req.body;
 
   if (!verifyAuthorization(req))
     return res.send({ success: false, error: "Unauthorized" });
 
-  if (!lessonName || !lessonDescription || !lessonContent) {
+  if (!name || !description || !content) {
     return res.send({
       success: false,
       error: "Please fill out all fields",
     });
   }
+
 
   const user = await verifyAuthorization(req);
 
@@ -507,13 +349,30 @@ app.post("/lessons/create", async (req, res) => {
 
   const lessons = database.collection("lessons");
 
+
+  // Check if parent exists and validate tree height
+  let parentLesson = null;
+  if (parentId) {
+    parentLesson = await lessons.findOne({ id: parentId });
+    if (!parentLesson) {
+      return res.send({ success: false, error: 'Parent lesson not found' });
+    }
+    const parentHeight = parentLesson.treeHeight || 1;
+    if (parentHeight >= 4) {
+      return res.send({ success: false, error: 'Maximum tree height exceeded' });
+    }
+  }
+
+
   const lesson = {
     id: uuidv4(),
-    name: lessonName,
-    description: lessonDescription,
-    content: lessonContent,
+    name,
+    description,
+    content,
     creatorId: user.id,
     dateCreated: Date.now(),
+    parentId: parentId || null,
+    treeHeight: parentLesson ? parentLesson.treeHeight + 1 : 1,
     version: 1,
     patches: [], // Array to store version patches
     history: [
@@ -524,9 +383,16 @@ app.post("/lessons/create", async (req, res) => {
         changelog: "Initial version",
       },
     ],
+    children: [], // Array to store child lesson IDs
   };
 
   await lessons.insertOne(lesson);
+  if (parentLesson) {
+    await lessons.updateOne(
+      { id: parentId },
+      { $push: { children: lesson.id } }
+    );
+  }
   return res.send({
     success: true,
     lessonId: lesson.id,
@@ -541,6 +407,7 @@ app.get("/api/lessons/:id", async (req, res) => {
   const database = dbClient.db("lessonsData");
   const lessons = database.collection("lessons");
   const lesson = await lessons.findOne({ id: id });
+
   if (!lesson) {
     return res.send({
       success: false,
@@ -553,152 +420,192 @@ app.get("/api/lessons/:id", async (req, res) => {
     .collection("users")
     .findOne({ id: lesson.creatorId });
 
-  lesson.creatorName = author ? author.username : 'Unknown Author';
+  // Fetch parent and children details
+  const parent = lesson.parentId ? await lessons.findOne({ id: lesson.parentId }) : null;
+  const children = lesson.children.length > 0 ? await lessons.find({ id: { $in: lesson.children } }).toArray() : [];
 
   return res.send({
     success: true,
-    lesson: lesson,
+    lesson: {
+      ...lesson,
+      parent: parent ? { id: parent.id, name: parent.name } : null,
+      children: children.map(child => ({ id: child.id, name: child.name })),
+      creatorName: author ? author.username : 'Unknown Author',
+    },
   });
 });
 
 app.put('/api/lesson/:id', async (req, res) => {
-    if (!verifyAuthorization(req)) return res.send({ success: false, error: 'Unauthorized' });
-    
-    const { id } = req.params;
-    const { content, description } = req.body;
-    const user = await verifyAuthorization(req);
-    
-    const database = dbClient.db('lessonsData');
-    const lessons = database.collection('lessons');
-    
-    const currentLesson = await lessons.findOne({ id });
-    if (!currentLesson) {
-        return res.send({ success: false, error: 'Lesson not found' });
-    }
-    
-    // Generate patch from previous to new content
-    const patch = createPatch(
-        `lesson_${id}`,
-        currentLesson.content,
-        content,
-        'Previous Version',
-        'New Version'
-    );
+  if (!verifyAuthorization(req)) return res.send({ success: false, error: 'Unauthorized' });
 
-    const namePatch = createPatch(
-        `lesson_${id}_name`,
-        currentLesson.name,
-        name,
-        'Previous Version',
-        'New Version'
-    );
-    
-    const descriptionPatch = createPatch(
-        `lesson_${id}_description`,
-        currentLesson.description,
-        description,
-        'Previous Version',
-        'New Version'
-    );
-    
-    // Update lesson with new content and store patch
-    await lessons.updateOne(
-        { id },
-        {
-            $set: {
-                content,
-                description
-            },
-            $push: {
-                patches: { content: patch, name: namePatch, description: descriptionPatch },
-                history: {
-                    version: currentLesson.version + 1,
-                    timestamp: Date.now(),
-                    creatorId: user.id,
-                    changelog: req.body.changelog || 'No changelog provided'
-                }
-            },
-            $inc: { version: 1 }
+  const { id } = req.params;
+  const { content, description } = req.body;
+  const user = await verifyAuthorization(req);
+
+  const database = dbClient.db('lessonsData');
+  const lessons = database.collection('lessons');
+
+  const currentLesson = await lessons.findOne({ id });
+  if (!currentLesson) {
+    return res.send({ success: false, error: 'Lesson not found' });
+  }
+
+  // Generate patch from previous to new content
+  const patch = createPatch(
+    `lesson_${id}`,
+    currentLesson.content,
+    content,
+    'Previous Version',
+    'New Version'
+  );
+
+  const namePatch = createPatch(
+    `lesson_${id}_name`,
+    currentLesson.name,
+    name,
+    'Previous Version',
+    'New Version'
+  );
+
+  const descriptionPatch = createPatch(
+    `lesson_${id}_description`,
+    currentLesson.description,
+    description,
+    'Previous Version',
+    'New Version'
+  );
+
+  // Update lesson with new content and store patch
+  await lessons.updateOne(
+    { id },
+    {
+      $set: {
+        content,
+        description
+      },
+      $push: {
+        patches: { content: patch, name: namePatch, description: descriptionPatch },
+        history: {
+          version: currentLesson.version + 1,
+          timestamp: Date.now(),
+          creatorId: user.id,
+          changelog: req.body.changelog || 'No changelog provided'
         }
-    );
-    
-    return res.send({ success: true });
+      },
+      $inc: { version: 1 }
+    }
+  );
+
+  return res.send({ success: true });
+});
+
+// Refactor lesson deletion to handle parent-child relationships
+app.delete('/api/lesson/:id', async (req, res) => {
+  const id = req.params.id;
+  const database = dbClient.db('lessonsData');
+  const lessons = database.collection('lessons');
+
+  const lesson = await lessons.findOne({ id: id });
+  if (!lesson) {
+      return res.send({ success: false, error: 'No lesson with that id' });
+  }
+
+  // Remove lesson from parent's children array
+  if (lesson.parentId) {
+      await lessons.updateOne(
+          { id: lesson.parentId },
+          { $pull: { children: id } }
+      );
+  }
+
+  // Recursively delete all children
+  async function deleteChildren(lessonId) {
+      const childLessons = await lessons.find({ parentId: lessonId }).toArray();
+      for (const child of childLessons) {
+          await deleteChildren(child.id);
+      }
+      await lessons.deleteOne({ id: lessonId });
+  }
+
+  await deleteChildren(id);
+
+  return res.send({ success: true });
 });
 
 const { applyPatch } = require('diff');
 
 app.get('/api/lesson/:id/version/:version', async (req, res) => {
-    const { id, version } = req.params;
-    const database = dbClient.db('lessonsData');
-    const lessons = database.collection('lessons');
-    
-    const lesson = await lessons.findOne({ id });
-    if (!lesson) {
-        return res.send({ success: false, error: 'Lesson not found' });
-    }
-    
-    // If requesting current version, return as is
-    if (parseInt(version) === lesson.version) {
-        return res.send({ success: true, content: lesson.content, name: lesson.name, description: lesson.description });
-    }
-    
-    // Otherwise reconstruct the requested version
-    let content = lesson.content;
-    let name = lesson.name;
-    let description = lesson.description;
-    const targetVersion = parseInt(version);
-    
-    // Apply patches in reverse to get to the requested version
-    for (let i = lesson.patches.length - 1; i >= targetVersion - 1; i--) {
-        content = applyPatch(content, lesson.patches[i]);
-        name = applyPatch(name, lesson.patches[i].name);
-        description = applyPatch(description, lesson.patches[i].description);
-    }
-    
-    return res.send({
-        success: true,
-        content,
-        name,
-        description,
-        versionInfo: lesson.history[targetVersion - 1]
-    });
+  const { id, version } = req.params;
+  const database = dbClient.db('lessonsData');
+  const lessons = database.collection('lessons');
+
+  const lesson = await lessons.findOne({ id });
+  if (!lesson) {
+    return res.send({ success: false, error: 'Lesson not found' });
+  }
+
+  // If requesting current version, return as is
+  if (parseInt(version) === lesson.version) {
+    return res.send({ success: true, content: lesson.content, name: lesson.name, description: lesson.description });
+  }
+
+  // Otherwise reconstruct the requested version
+  let content = lesson.content;
+  let name = lesson.name;
+  let description = lesson.description;
+  const targetVersion = parseInt(version);
+
+  // Apply patches in reverse to get to the requested version
+  for (let i = lesson.patches.length - 1; i >= targetVersion - 1; i--) {
+    content = applyPatch(content, lesson.patches[i]);
+    name = applyPatch(name, lesson.patches[i].name);
+    description = applyPatch(description, lesson.patches[i].description);
+  }
+
+  return res.send({
+    success: true,
+    content,
+    name,
+    description,
+    versionInfo: lesson.history[targetVersion - 1]
+  });
 });
 
 app.get("/api/lesson/:id/versions", async (req, res) => {
-    const { id } = req.params;
-    const database = dbClient.db('lessonsData');
-    const lessons = database.collection('lessons');
-    
-    const lesson = await lessons.findOne({ id });
-    if (!lesson) {
-        return res.send({ success: false, error: 'Lesson not found' });
+  const { id } = req.params;
+  const database = dbClient.db('lessonsData');
+  const lessons = database.collection('lessons');
+
+  const lesson = await lessons.findOne({ id });
+  if (!lesson) {
+    return res.send({ success: false, error: 'Lesson not found' });
+  }
+
+  // Build versions array with content
+  const versions = [];
+  for (let i = 0; i < lesson.history.length; i++) {
+    const version = lesson.history[i];
+    let content = lesson.content;
+
+    // Apply patches in reverse to get historical content
+    for (let j = lesson.patches.length - 1; j >= i; j--) {
+      content = applyPatch(content, lesson.patches[j]);
     }
-    
-    // Build versions array with content
-    const versions = [];
-    for (let i = 0; i < lesson.history.length; i++) {
-        const version = lesson.history[i];
-        let content = lesson.content;
-        
-        // Apply patches in reverse to get historical content
-        for (let j = lesson.patches.length - 1; j >= i; j--) {
-            content = applyPatch(content, lesson.patches[j]);
-        }
-        
-        versions.push({
-            version: version.version,
-            timestamp: version.timestamp, 
-            name: lesson.name,
-            description: version.description,
-            content: content,
-            changelog: version.changelog || 'No changelog provided'
-        });
-    }
-    
-    return res.send({
-        success: true,
-        versions: versions
+
+    versions.push({
+      version: version.version,
+      timestamp: version.timestamp,
+      name: lesson.name,
+      description: version.description,
+      content: content,
+      changelog: version.changelog || 'No changelog provided'
     });
+  }
+
+  return res.send({
+    success: true,
+    versions: versions
+  });
 });
 
 app.listen(9000, () => {
