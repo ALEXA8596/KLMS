@@ -1,20 +1,27 @@
 import React, { useState } from "react";
-import HeaderDropdown from "@/components/HeaderDropdown";
+import TopRightDropdown from "@/components/TopRightDropdown";
+import CreateDropDown from "@/components/CreateDropDown";
 
-export default function Header({userData}) {
-    console.log(userData);
+export default function Header({ userData }) {
   const [searchQuery, setSearchQuery] = useState("");
   // const [userData, setUserData] = useState(null);
   return (
     <header className="d-flex justify-content-center p-4 relative">
       <div className="d-flex justify-content-between w-100">
         {/* Add a Home Button */}
-            <a href="/home" className="d-flex align-items-center">
-              <button>
-                <img src="/hobbscussion.png" alt="Logo" className="w-32 m-auto" />
-              </button>
-            </a>
-            {/* Add a search bar */}
+        <a href="/home" className="d-flex align-items-center">
+          <button>
+            <img src="/hobbscussion.png" alt="Logo" className="w-32 m-auto" />
+          </button>
+        </a>
+
+        
+
+        <div className="relative my-auto">
+          <CreateDropDown />
+        </div>
+
+        {/* Add a search bar */}
         <div className="d-flex m-4">
           <input
             type="text"
@@ -55,7 +62,7 @@ export default function Header({userData}) {
             </span>
           </div>
           <div className="relative">
-            <HeaderDropdown
+            <TopRightDropdown
               signOut={() => {
                 document.cookie = "";
                 window.location.href = "/";

@@ -12,11 +12,12 @@ import MDEditor from '@uiw/react-md-editor';
  */
 export default function Lesson() {
     // State to hold search query
-    const [searchQuery, setSearchQuery] = useState('');
-    let cookies;
+    // const [searchQuery, setSearchQuery] = useState('');
+    const [cookies, setCookies] = useState(null);
 
     useEffect(() => {
-        cookies = cookie.parse(document.cookie);
+        setCookies(cookie.parse(document.cookie));
+        console.log(cookies);
     }, []);
 
     const [content, setContent] = useState('');
@@ -26,9 +27,9 @@ export default function Lesson() {
 
         (async () => {
             // Fetch user
-
+            console.log(cookies);
             // get cookie
-            if (!cookies.session_id) {
+            if (cookies && !cookies.session_id) {
                 console.log("No session_id cookie found")
                 window.location.href = '/'
             }
@@ -65,7 +66,7 @@ export default function Lesson() {
 
     return (
         <div className="container mx-auto">
-            <Header/>
+            <Header userData={userData}/>
             <main>
                 <h1>Create a New Lesson</h1>
                 <form onSubmit={async (e) => {
@@ -86,7 +87,7 @@ export default function Lesson() {
                         const data = await response.json();
                         if (data.success) {
                             alert('Lesson created successfully!');
-                            window.location.href = '/lessons/' + data.lesson.id;
+                            window.location.href = '/lesson/' + data.lessonId;
                         } else {
                             alert('Error creating lesson: ' + data.error);
                         }
@@ -102,6 +103,7 @@ export default function Lesson() {
                                 type="text"
                                 id="lessonName"
                                 name="lessonName"
+                                placeholder="Name of the lesson"
                                 className="form-control border border-black"
                                 required
                             />
@@ -111,6 +113,7 @@ export default function Lesson() {
                             <textarea
                                 id="lessonDescription"
                                 name="lessonDescription"
+                                placeholder="Description of the lesson"
                                 className="form-control border border-black"
                                 rows="3"
                                 required

@@ -1,13 +1,8 @@
 "use client"
 import { useState, useEffect, useRef, } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCog, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 const cookie = require('cookie');
 
-import createCommunity from '@/utils/createCommunity';
-import Modal from '@/components/Modal';
 import postToProfile from '@/utils/postToProfile';
-import HeaderDropdown from '@/components/HeaderDropdown';
 import Header from '@/components/Header';
 
 /**
