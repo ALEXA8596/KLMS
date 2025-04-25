@@ -499,6 +499,52 @@ app.put('/api/lesson/:id', async (req, res) => {
   return res.send({ success: true });
 });
 
+
+app.get('api/lesson/:id/tree', async (req, res) => {
+  const id = req.params.id;
+  const database = dbClient.db('lessonsData');
+  const lessons = database.collection('lessons');
+
+  const lesson = await lessons.findOne({ id: id });
+  if (!lesson) {
+    return res.send({ success: false, error: 'No lesson with that id' });
+  }
+
+  // Recursive function to fetch all parents and build the hierarchy
+  async function buildHierarchy(lessonId) {
+    const currentLesson = await lessons.findOne({ id: lessonId });
+    if (!currentLesson) return null;
+
+    const parentHierarchy = currentLesson.parentId
+      ? await buildHierarchy(currentLesson.parentId)
+      : null;
+
+    const children = await lessons.find({ parentId: lessonId }).toArray();
+    const childHierarchy = await Promise.all(
+      children.map(async (child) => ({
+        id: child.id,
+        name: child.name,
+        children: await buildHierarchy(child.id),
+      }))
+    );
+
+    const currentNode = {
+      id: currentLesson.id,
+      name: currentLesson.name,
+      children: childHierarchy,
+    };
+
+    return parentHierarchy ? { ...parentHierarchy, children: [currentNode] } : currentNode;
+  }
+
+  const hierarchy = await buildHierarchy(id);
+
+  return res.send({
+    success: true,
+    tree: hierarchy,
+  });
+});
+
 // Refactor lesson deletion to handle parent-child relationships
 app.delete('/api/lesson/:id', async (req, res) => {
   const id = req.params.id;
