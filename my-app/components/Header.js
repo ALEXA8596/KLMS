@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import TopRightDropdown from "@/components/TopRightDropdown";
-import CreateDropDown from "@/components/CreateDropDown";
+import CreateDropDown from "@/components/CreateDropdown";
 
 export default function Header({ userData }) {
   const [searchQuery, setSearchQuery] = useState("");

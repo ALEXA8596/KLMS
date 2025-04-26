@@ -500,7 +500,7 @@ app.put('/api/lesson/:id', async (req, res) => {
 });
 
 
-app.get('api/lesson/:id/tree', async (req, res) => {
+app.get('/api/lesson/:id/tree', async (req, res) => {
   const id = req.params.id;
   const database = dbClient.db('lessonsData');
   const lessons = database.collection('lessons');
