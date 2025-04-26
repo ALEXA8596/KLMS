@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faFile, faFileZipper, faSuitcase } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faFile, faQuestion } from '@fortawesome/free-solid-svg-icons';
 import Dropdown from 'react-bootstrap/Dropdown';
 
 function CreateDropdown() {
@@ -16,10 +16,7 @@ function CreateDropdown() {
                     <FontAwesomeIcon icon={faFile} className="mr-2" /> Lesson
                 </Dropdown.Item>
                 <Dropdown.Item href="/create/unit">
-                    <FontAwesomeIcon icon={faFileZipper} className="mr-2" /> Unit
-                </Dropdown.Item>
-                <Dropdown.Item href="/create/course">
-                    <FontAwesomeIcon icon={faSuitcase} className="mr-2" /> Course
+                    <FontAwesomeIcon icon={faQuestion} className="mr-2" /> Quiz
                 </Dropdown.Item>
             </Dropdown.Menu>
         </Dropdown>

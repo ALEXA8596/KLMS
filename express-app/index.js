@@ -559,19 +559,23 @@ app.get('/api/lesson/:id/tree', async (req, res) => {
   const id = req.params.id;
   const database = dbClient.db('lessonsData');
   const lessons = database.collection('lessons');
-
+  console.log('hierarchy');
   const lesson = await lessons.findOne({ id: id });
   if (!lesson) {
     return res.send({ success: false, error: 'No lesson with that id' });
   }
 
   // Recursive function to fetch all parents and build the hierarchy
-  async function buildHierarchy(lessonId) {
+  async function buildHierarchy(lessonId, visited = new Set()) {
+    console.log(lessonId);
+    if (visited.has(lessonId)) return null; // Prevent circular references
+    visited.add(lessonId);
+
     const currentLesson = await lessons.findOne({ id: lessonId });
     if (!currentLesson) return null;
 
-    const parentHierarchy = currentLesson.parentId
-      ? await buildHierarchy(currentLesson.parentId)
+    const parentHierarchy = currentLesson.parentId && !visited.has(currentLesson.parentId)
+      ? await buildHierarchy(currentLesson.parentId, visited)
       : null;
 
     const children = await lessons.find({ parentId: lessonId }).toArray();
@@ -579,7 +583,7 @@ app.get('/api/lesson/:id/tree', async (req, res) => {
       children.map(async (child) => ({
         id: child.id,
         name: child.name,
-        children: await buildHierarchy(child.id),
+        children: await buildHierarchy(child.id, new Set(visited)),
       }))
     );
 
@@ -593,6 +597,8 @@ app.get('/api/lesson/:id/tree', async (req, res) => {
   }
 
   const hierarchy = await buildHierarchy(id);
+
+  console.log(hierarchy);
 
   return res.send({
     success: true,

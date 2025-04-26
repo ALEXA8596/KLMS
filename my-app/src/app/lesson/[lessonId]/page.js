@@ -7,7 +7,7 @@ import ShareBar from "@/components/ShareBar";
 import LessonTree from "@/components/LessonTree";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faEdit } from "@fortawesome/free-solid-svg-icons";
 
 import Header from "@/components/Header";
 
@@ -106,7 +106,7 @@ export default function Lesson({ params }) {
 
   return (
     <>
-      <div className="mx-auto">
+      <div className="container mx-auto">
         <Header userData={userData} />
 
         <div className="flex gap-4 px-4">
@@ -119,7 +119,7 @@ export default function Lesson({ params }) {
             )}
           </div>
           {lesson ? (
-            <div className="flex flex-row justify-start bg-blue-200 rounded-lg p-4 mx-56">
+            <div className="flex flex-row justify-start bg-blue-200 rounded-lg p-4 w-full">
               <div className="w-full">
                 <h2 className="text-lg font-bold">{lesson.name}</h2>
                 <p className="text-sm text-gray-500 mb-4">

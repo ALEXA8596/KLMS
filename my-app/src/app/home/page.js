@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef, } from 'react';
 const cookie = require('cookie');
 
-import postToProfile from '@/utils/postToProfile';
 import Header from '@/components/Header';
 
 /**
@@ -61,16 +60,6 @@ export default function Home() {
     return (
         <div className="container mx-auto">
             <Header userData={userData} />
-
-            <div className="d-flex justify-content-center"> {/* Add flex justify-center to center the form horizontally */}
-                <form className="w-100 max-w-md" onSubmit={(e) => postToProfile({ e, document })}> {/* Adjust max-w-md as needed to control form width */}
-                    <input name="title" type="text" placeholder="Title" className="form-control mb-4" />
-                    <textarea name="content" placeholder="Content" className="form-control mb-4" rows="4"></textarea>
-                    <button type="submit" className="btn btn-primary w-100">
-                        Publish to your own profile
-                    </button>
-                </form>
-            </div>
 
             {/* Add a Line Break */}
             <br className="my-4" />
