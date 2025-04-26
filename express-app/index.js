@@ -3,7 +3,6 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const { MongoClient } = require("mongodb");
-// const mongoose = require('mongoose');
 const cors = require("cors");
 const { createPatch } = require("diff");
 
@@ -245,10 +244,67 @@ app.get("/profile/self", async (req, res) => {
   });
 });
 
-app.get("/profile/:id", async (req, res) => {
-  const id = req.params.id;
+app.get("/profile/self/lessons", async (req, res) => {
+  const array = [];
+  // get all lessons created by the user that is logged in that aren't children of other lessons. Save each parent lesson in the array with its children and their children's children underneath it
+  const authorization = req.headers.authorization;
+  if (!authorization) {
+    return res.send({
+      success: false,
+      error: "No authorization token provided",
+    });
+  }
+  const token = authorization.split(" ")[1];
+  let [id, dateCreated, hashedToken] = token.split("."); // [id, dateCreated, hashedToken
+  id = atob(id);
   const database = dbClient.db("userData");
   const userData = database.collection("users");
+  const user = await userData.findOne({
+    sessionCookies: { $elemMatch: { cookie: token } },
+  });
+  if (!user) {
+    return res.send({
+      success: false,
+      error: "Invalid authorization token",
+    });
+  }
+  const lessonsDatabase = dbClient.db("lessonsData");
+  const lessons = lessonsDatabase.collection("lessons");
+  const allLessons = await lessons.find({ creatorId: user.id }).toArray();
+  console.log(allLessons);
+  const lessonsWithNoParent = allLessons.filter((lesson) => !lesson.parentId);
+  console.log(lessonsWithNoParent);
+  async function getChildrenRecursive(lessonId) {
+    const children = await lessons.find({ parentId: lessonId }).toArray();
+    if (children.length === 0) return [];
+    
+    const childrenWithChildren = await Promise.all(
+      children.map(async (child) => ({
+        ...child,
+        children: await getChildrenRecursive(child.id)
+      }))
+    );
+    
+    return childrenWithChildren;
+  }
+
+  for (const lesson of lessonsWithNoParent) {
+    array.push({
+      ...lesson,
+      children: await getChildrenRecursive(lesson.id)
+    });
+  }
+  console.log(array);
+  return res.send({
+    success: true,
+    lessons: array,
+  });
+});
+
+app.get("/profile/:id", async (req, res) => {
+  const id = req.params.id;
+  const userDatabase = dbClient.db("userData");
+  const userData = userDatabase.collection("users");
   const user = await userData.findOne({ id: id });
   if (!user) {
     return res.send({
@@ -257,71 +313,70 @@ app.get("/profile/:id", async (req, res) => {
     });
   }
 
+  const lessonDatabase = dbClient.db("lessonsData");
+  const lessons = lessonDatabase.collection("lessons");
+  const lessonsCreated = await lessons.find({ creatorId: id }).toArray();
+  
+  const lessonsCreatedWithNoParent = lessonsCreated.filter(
+    (lesson) => !lesson.parentId
+  );
+
+  user.lessons = lessonsCreatedWithNoParent.map((lesson) => ({
+    id: lesson.id,
+    name: lesson.name,
+    description: lesson.description,
+    dateCreated: lesson.dateCreated,
+  }));
+
+
   return res.send({
     success: true,
     user: user,
   });
 });
 
-// TODO: Modify for courses / users
 app.get("/search", async (req, res) => {
   const query = req.query.q;
-  const database = dbClient.db("userData");
-  const communities = database.collection("communities");
-  const users = database.collection("users");
-  const allCommunities = await communities.find().toArray();
+  console.log(query);
+  const userDb = dbClient.db("userData");
+  const lessonDb = dbClient.db("lessonsData");
+  const users = userDb.collection("users");
+  const lessons = lessonDb.collection("lessons");
+
   const allUsers = await users.find().toArray();
+  console.log(allUsers);
+  const allLessons = await lessons.find().toArray();
+  console.log(allLessons);
 
-  const communityResults = allCommunities.filter(
-    (community) =>
-      community.name.includes(query) || community.description.includes(query)
-  );
-  const userResults = allUsers.filter((user) => user.username.includes(query));
+  // Filter users by username
+  const userResults = allUsers.filter((user) => 
+    user.username.toLowerCase().includes(query.toLowerCase())
+  ).map(user => ({
+    id: user.id,
+    username: user.username
+  }));
 
-  // get all the posts from the communities and users, and filter them by the query
-  const allPosts = [];
+  console.log(userResults);
 
-  for (const community of allCommunities) {
-    if (
-      community.posts &&
-      typeof community.posts[Symbol.iterator] === "function"
-    ) {
-      var posts = [...community.posts];
-      posts.forEach((post) => {
-        post.inAProfile = false;
-        post.inACommunity = true;
-        post.communityId = community.id;
-      });
-      allPosts.push(...posts);
-    }
-  }
-
-  for (const user of allUsers) {
-    if (user.posts && typeof user.posts[Symbol.iterator] === "function") {
-      var posts = [...user.posts];
-      posts.forEach((post) => {
-        post.inAProfile = true;
-        post.inACommunity = false;
-      });
-      allPosts.push(...posts);
-    }
-  }
-
-  console.log(allPosts);
-
-  const postResults = allPosts.filter(
-    (post) =>
-      post.title.toLowerCase().includes(query.toLowerCase()) ||
-      post.content.toLowerCase().includes(query.toLowerCase())
-  );
+  // Filter lessons by name, description and content
+  const lessonResults = allLessons.filter((lesson) =>
+    lesson.name.toLowerCase().includes(query.toLowerCase()) ||
+    lesson.description.toLowerCase().includes(query.toLowerCase()) ||
+    lesson.content.toLowerCase().includes(query.toLowerCase())
+  ).map(lesson => ({
+    id: lesson.id,
+    name: lesson.name,
+    description: lesson.description,
+    creatorId: lesson.creatorId,
+    dateCreated: lesson.dateCreated
+  }));
 
   return res.send({
     success: true,
     results: {
-      communities: communityResults,
-      users: userResults,
-      posts: postResults,
-    },
+      users: userResults || [],
+      lessons: lessonResults || [],
+    }
   });
 });
 

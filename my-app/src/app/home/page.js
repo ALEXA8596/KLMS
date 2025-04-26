@@ -9,49 +9,12 @@ import Header from '@/components/Header';
  * Home Page Component
  */
 export default function Home() {
-
-    // State to hold search query
-    const [searchQuery, setSearchQuery] = useState('');
     let cookies;
 
     useEffect(() => {
         cookies = cookie.parse(document.cookie);
     }, []);
 
-    // replace with courses and lessons
-    // useEffect(() => {
-    //     fetch('http://localhost:9000/home/communities', {
-    //         method: 'GET',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //             'Authorization': 'Bearer ' + cookies.session_id,
-    //         },
-    //     })
-    //         .then((res) => res.json())
-    //         .then((data) => {
-    //             setCommunities(data.communities || []);
-    //         })
-    //         .catch((error) => {
-    //             console.error('Error fetching communities:', error);
-    //         })
-    // }, [cookies]);
-
-    // useEffect(() => {
-    //     // fetching posts
-    //     fetch('http://localhost:9000/posts/popular', {
-    //         method: 'GET',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //     })
-    //         .then((res) => res.json())
-    //         .then((data) => {
-    //             setPosts(data.posts || []);
-    //         })
-    //         .catch((error) => {
-    //             console.error('Error fetching posts:', error);
-    //         });
-    // }, []);
 
     const [userData, setUserData] = useState(null);
     useEffect(() => {
