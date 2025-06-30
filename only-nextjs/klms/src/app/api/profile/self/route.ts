@@ -1,7 +1,56 @@
 import { NextRequest, NextResponse } from "next/server";
+import { MongoClient } from "mongodb";
+import { createPatch, applyPatch } from "diff";
+import { v4 as uuidv4 } from "uuid";
+import bcrypt from "bcrypt";
+import { getToken } from "next-auth/jwt";
+
+const uri: string = process.env.MONGODB_URI ?? "";
+if (!uri) {
+  throw new Error("MONGODB_URI environment variable is not set");
+}
+const dbClient = new MongoClient(uri);
 
 // GET /api/profile/self
 export async function GET(request: NextRequest) {
-  // TODO: Implement self profile logic
-  return NextResponse.json({ success: false, error: 'Not implemented' });
+  try {
+    const token = await getToken({
+      req: request,
+      secret: process.env.AUTH_SECRET,
+    });
+    if (!token || !token.sub || !token.name) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const database = dbClient.db("userData");
+    const userData = database.collection("users");
+    const user = await userData.findOne({
+      sessionCookies: { $elemMatch: { cookie: token } },
+    });
+    if (!user) {
+      return NextResponse.json({
+        success: false,
+        error: "Invalid authorization token",
+      });
+    }
+
+    const userWithoutSessionCookies = { ...user };
+    delete userWithoutSessionCookies.sessionCookies;
+    delete userWithoutSessionCookies.hashedPassword;
+    if (
+      userWithoutSessionCookies.posts &&
+      Array.isArray(userWithoutSessionCookies.posts)
+    )
+      userWithoutSessionCookies.posts = userWithoutSessionCookies.posts.slice(
+        0,
+        10
+      );
+    return NextResponse.json({
+      success: true,
+      user: userWithoutSessionCookies,
+    });
+  } catch (error) {
+    console.error("Error fetching self profile:", error);
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 }

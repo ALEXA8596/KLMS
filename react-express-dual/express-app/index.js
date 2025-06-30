@@ -218,6 +218,7 @@ app.get("/profile/self", async (req, res) => {
   const token = authorization.split(" ")[1];
   let [id, dateCreated, hashedToken] = token.split("."); // [id, dateCreated, hashedToken
   id = atob(id);
+  
   const database = dbClient.db("userData");
   const userData = database.collection("users");
   const user = await userData.findOne({
@@ -385,13 +386,11 @@ app.get("/search", async (req, res) => {
 });
 
 app.post("/lessons/create", async (req, res) => {
-  // const lessonName = req.body.name;
-  // const lessonDescription = req.body.description;
-  // const lessonContent = req.body.content;
 
   const { name, description, content, parentId } = req.body;
 
-  if (!verifyAuthorization(req))
+  const user = await verifyAuthorization(req);
+  if (!user)
     return res.send({ success: false, error: "Unauthorized" });
 
   if (!name || !description || !content) {
@@ -400,9 +399,6 @@ app.post("/lessons/create", async (req, res) => {
       error: "Please fill out all fields",
     });
   }
-
-
-  const user = await verifyAuthorization(req);
 
   const database = dbClient.db("lessonsData");
 
