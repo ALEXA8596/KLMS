@@ -2,17 +2,21 @@ require("dotenv").config();
 
 const express = require("express");
 const app = express();
-const { MongoClient } = require("mongodb");
+
 const cors = require("cors");
+
+const { MongoClient } = require("mongodb");
 const { createPatch } = require("diff");
+const { v4: uuidv4 } = require("uuid");
+const bcrypt = require("bcrypt");
+
+const uri = process.env.MONGODB_URI;
+const dbClient = new MongoClient(uri);
 
 /**
  * setup the database
  */
-const uri = process.env.MONGODB_URI;
-const dbClient = new MongoClient(uri);
-const { v4: uuidv4 } = require("uuid");
-const bcrypt = require("bcrypt");
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

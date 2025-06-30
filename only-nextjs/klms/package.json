@@ -9,19 +9,35 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@atlaskit/css-reset": "^7.3.2",
+    "@fontsource/roboto": "^5.2.6",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
+    "@uiw/react-md-editor": "^4.0.7",
+    "bcrypt": "^6.0.0",
+    "bootstrap": "^5.3.7",
+    "cookie": "^1.0.2",
+    "diff": "^8.0.2",
+    "mongodb": "^6.17.0",
+    "next": "15.3.4",
+    "next-auth": "^4.24.11",
     "react": "^19.0.0",
+    "react-bootstrap": "^2.10.10",
     "react-dom": "^19.0.0",
-    "next": "15.3.4"
+    "react-markdown": "^10.1.0",
+    "react-share": "^5.2.2",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }

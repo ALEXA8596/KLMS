@@ -1,9 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
+import { MongoClient } from "mongodb";
+import { createPatch, applyPatch } from "diff";
+import { v4 as uuidv4 } from "uuid";
+import bcrypt from "bcrypt";
+
+const uri: string = process.env.MONGODB_URI ?? "";
+if (!uri) {
+  throw new Error("MONGODB_URI environment variable is not set");
+}
+const dbClient = new MongoClient(uri);
 
 // GET /api/lesson/[id]/versions
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
-  const id = searchParams.get('id');
+  const id = searchParams.get("id");
   // TODO: Implement lesson versions logic
-  return NextResponse.json({ success: false, error: 'Not implemented' });
+  const database = dbClient.db("lessonsData");
+  const lessons = database.collection("lessons");
+
+  if (!id) {
+    return NextResponse.json({
+      success: false,
+      error: "Lesson ID is required",
+    });
+  }
+
+  const lesson = await lessons.findOne({ id });
+  if (!lesson) {
+    return NextResponse.json({ success: false, error: "Lesson not found" });
+  }
+
+  const versions = [];
+  for (let i = 0; i < lesson.history.length; i++) {
+    const version = lesson.history[i];
+    let content = lesson.content;
+
+    // Apply patches in reverse to get historical content
+    for (let j = lesson.patches.length - 1; j >= i; j--) {
+      content = applyPatch(content, lesson.patches[j]);
+    }
+
+    versions.push({
+      version: version.version,
+      timestamp: version.timestamp,
+      name: lesson.name,
+      description: version.description,
+      content: content,
+      changelog: version.changelog || 'No changelog provided'
+    });
+  }
+
+  return NextResponse.json({ success: true, versions });
 }

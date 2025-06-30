@@ -1,103 +1,151 @@
-import Image from "next/image";
+"use client"
+import { useState, useEffect, SetStateAction } from 'react';
+const cookie = require('cookie');
+/**
+ * Login Page
+ */
+export default function Login() {
+  const [usernameValue, setUsername] = useState('');
+  const [passwordValue, setPassword] = useState('');
 
-export default function Home() {
+
+  const handleUsernameInputChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+    setUsername(e.target.value);
+  };
+  const handlePasswordInputChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+    setPassword(e.target.value);
+  }
+
+  const onLoad = async () => {
+    // get cookie
+
+    var cookies = cookie.parse(document.cookie);
+    console.log(cookies);
+    if (!cookies.session_id) return;
+    if (cookies.session_id) {
+      console.log("Attempting Remember Me")
+      var [id, dateCreated, hashedToken] = cookies.session_id.split('.');
+      id = atob(id);
+      dateCreated = atob(dateCreated);
+
+      // get user from database
+      const response = await fetch('http://localhost:9000/verifyCookie', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          session_id: cookies.session_id,
+          id: id,
+          dateCreated: dateCreated,
+          hashedToken: hashedToken,
+        }),
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        console.error(data.error);
+        return;
+      }
+      if (data.success) {
+        window.location.href = '/home';
+      }
+    }
+  }
+
+  interface LoginFormElements extends HTMLFormControlsCollection {
+    username: HTMLInputElement;
+    password: HTMLInputElement;
+    rememberMe: HTMLInputElement;
+  }
+
+  interface LoginForm extends HTMLFormElement {
+    readonly elements: LoginFormElements;
+  }
+
+  interface LoginRequestData {
+    username: FormDataEntryValue | null;
+    password: FormDataEntryValue | null;
+    rememberMe: FormDataEntryValue | null;
+  }
+
+  interface LoginResponseData {
+    success: boolean;
+    error?: string;
+    cookie?: string;
+  }
+
+  async function formSubmit(e: React.FormEvent<LoginForm>) {
+    e.preventDefault();
+    console.log("Form submitted");
+    console.log(e.target);
+
+    const formData = new FormData(e.target as LoginForm);
+    const username = formData.get('username');
+    const password = formData.get('password');
+    const rememberMe = formData.get('rememberMe'); //TODO
+
+    const data: LoginRequestData = {
+      username: username,
+      password: password,
+      rememberMe: rememberMe,
+    };
+
+    const response = await fetch('http://localhost:9000/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // no cors
+        'mode': 'no-cors',
+      } as Record<string, string>,
+      body: JSON.stringify(data),
+    });
+
+    const responseData: LoginResponseData = await response.json();
+    if (responseData.success === false) {
+      alert(responseData.error);
+      return;
+    }
+    // redirect to /home
+    // set cookie
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 30); // Set the cookie to expire in 30 days
+
+    document.cookie = `session_id=${responseData.cookie}; expires=${expirationDate.toUTCString()}; `;
+    console.log(document.cookie);
+    window.location.href = '/home';
+  }
+
+  useEffect(() => {
+    onLoad();
+  }, []);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className='h-screen d-flex justify-content-center align-items-center gap-5'>
+      <img src="/hobbscussion.png" alt="Logo" className='pr-3 rounded-circle'/>
+      <div className='h-auto d-grid gap-3'>
+        <h2>Login</h2>
+        <div className="container rounded border p-4" style={{ backgroundColor: 'rgb(240,236,252)' }}>
+          <form onSubmit={formSubmit}>
+            <div className="mb-3">
+              <label htmlFor="username" className="form-label">Username</label>
+              <input name="username" className="form-control" type="text" value={usernameValue} onChange={handleUsernameInputChange}></input>
+            </div>
+            <div className="mb-3">
+              <label htmlFor="password" className="form-label">Password</label>
+              <input name="password" className="form-control" type="password" value={passwordValue} onChange={handlePasswordInputChange} ></input>
+            </div>
+            <div className="form-check mb-3">
+              <input name="rememberMe" type="checkbox" className="form-check-input" id="rememberMe" value="rememberMe"></input>
+              <label className="form-check-label" htmlFor="rememberMe">Remember me?</label>
+            </div>
+            <div>
+              <button className="btn btn-primary" type="submit">Login</button>
+            </div>
+          </form>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <sub>Don&#39;t have an account? <a href="/register">Register</a></sub>
+      </div>
     </div>
   );
 }
