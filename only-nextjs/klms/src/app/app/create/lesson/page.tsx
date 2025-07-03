@@ -40,7 +40,7 @@ export default function Lesson() {
                 dateCreated = atob(dateCreated);
 
                 // get user from database
-                const response = await fetch('http://localhost:9000/profile/self', {
+                const response = await fetch('/api/profile/self', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ export default function Lesson() {
                 console.error('No session_id cookie found');
                 return;
             }
-            fetch(`http://localhost:9000/profile/self/lessons`, {
+            fetch(`/api/profile/self/lessons`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ export default function Lesson() {
                     const form = e.target as HTMLFormElement;
                     const lessonContent = content;
                     try {
-                        const response = await fetch('http://localhost:9000/lessons/create', {
+                        const response = await fetch('/api/lessons/create', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ export default function Lesson() {
                         const data = await response.json();
                         if (data.success) {
                             alert('Lesson created successfully!');
-                            window.location.href = '/lesson/' + data.lessonId;
+                            window.location.href = '/app/lesson/' + data.lessonId;
                         } else {
                             alert('Error creating lesson: ' + data.error);
                         }

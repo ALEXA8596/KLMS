@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
       req: request,
       secret: process.env.AUTH_SECRET,
     });
+
     if (!token || !token.sub || !token.name) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
     const database = dbClient.db("userData");
     const userData = database.collection("users");
     const user = await userData.findOne({
-      sessionCookies: { $elemMatch: { cookie: token } },
+      id: token.sub, 
     });
     if (!user) {
       return NextResponse.json({

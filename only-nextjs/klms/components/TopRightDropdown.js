@@ -13,10 +13,10 @@ function DropDown({
             </Dropdown.Toggle>
 
             <Dropdown.Menu style={{ marginTop: '0.125rem' }}>
-                <Dropdown.Item href="/profile">
+                <Dropdown.Item href="/app/profile">
                     <FontAwesomeIcon icon={faUser} className="mr-2" /> My Profile
                 </Dropdown.Item>
-                <Dropdown.Item href="/settings">
+                <Dropdown.Item href="/app/settings">
                     <FontAwesomeIcon icon={faCog} className="mr-2" /> Settings
                 </Dropdown.Item>
                 <Dropdown.Item onClick={signOut}>

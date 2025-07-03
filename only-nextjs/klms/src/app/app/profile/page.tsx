@@ -38,7 +38,7 @@ export default function Profile() {
         var [id, dateCreated, hashedToken] = cookies.session_id.split('.');
         id = atob(id);
         // Fetch data
-        fetch(`http://localhost:9000/profile/${id}`, {
+        fetch(`/api/profile/${id}`, {
             headers: {
                 'Content-Type': 'application/json',
                 // no cors
@@ -76,7 +76,7 @@ export default function Profile() {
                 dateCreated = atob(dateCreated);
 
                 // get user from database
-                const response = await fetch('http://localhost:9000/profile/self', {
+                const response = await fetch('/api/profile/self', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

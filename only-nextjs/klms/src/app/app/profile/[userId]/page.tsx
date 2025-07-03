@@ -33,7 +33,7 @@ export default function Profile({ params }: ProfilePageProps) {
     // useEffect to fetch data
     useEffect(() => {
         // Fetch data
-        fetch(`http://localhost:9000/profile/${id}`)
+        fetch(`/api/profile/${id}`)
             .then((res) => res.json())
             .then((data) => {
                 console.log(data)
@@ -63,7 +63,7 @@ export default function Profile({ params }: ProfilePageProps) {
                 dateCreated = atob(dateCreated);
 
                 // get user from database
-                const response = await fetch('http://localhost:9000/profile/self', {
+                const response = await fetch('/api/profile/self', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -85,25 +85,6 @@ export default function Profile({ params }: ProfilePageProps) {
                 }
             }
         })();
-    }, [cookies]);
-
-    // Dummy data for communities and posts
-    const [communities, setCommunities] = useState(null);
-    useEffect(() => {
-        fetch('http://localhost:9000/home/communities', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + (cookies?.session_id ?? ''),
-            },
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                setCommunities(data.communities || []);
-            })
-            .catch((error) => {
-                console.error('Error fetching communities:', error);
-            })
     }, [cookies]);
 
     return (<>

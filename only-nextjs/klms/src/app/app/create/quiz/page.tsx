@@ -40,7 +40,7 @@ export default function Quiz() {
                 dateCreated = atob(dateCreated);
 
                 // get user from database
-                const response = await fetch('http://localhost:9000/profile/self', {
+                const response = await fetch('/api/profile/self', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ export default function Quiz() {
                 console.error('No session_id cookie found');
                 return;
             }
-            fetch(`http://localhost:9000/profile/self/lessons`, {
+            fetch(`/api/profile/self/lessons`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ export default function Quiz() {
                     const form = e.target as HTMLFormElement;
                     const lessonContent = content;
                     try {
-                        const response = await fetch('http://localhost:9000/lessons/create', {
+                        const response = await fetch('/api/lessons/create', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

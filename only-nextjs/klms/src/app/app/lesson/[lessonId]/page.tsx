@@ -51,7 +51,7 @@ export default function Lesson({ params }: { params: LessonParams }) {
   // use useEffect to fetch post data & profile data
   useEffect(() => {
     // Fetch data
-    fetch(`http://localhost:9000/api/lessons/${lessonId}`)
+    fetch(`/api/lessons/${lessonId}`)
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
@@ -66,7 +66,7 @@ export default function Lesson({ params }: { params: LessonParams }) {
 
   useEffect(() => {
     // Fetch data
-    fetch(`http://localhost:9000/api/lesson/${lessonId}/tree`)
+    fetch(`/api/lesson/${lessonId}/tree`)
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
@@ -96,7 +96,7 @@ export default function Lesson({ params }: { params: LessonParams }) {
         dateCreated = atob(dateCreated);
 
         // get user from database
-        const response = await fetch("http://localhost:9000/profile/self", {
+        const response = await fetch("/api/profile/self", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

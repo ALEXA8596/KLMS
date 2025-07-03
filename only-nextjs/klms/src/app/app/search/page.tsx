@@ -33,7 +33,7 @@ function SearchPageContent() {
   }, []);
 
   useEffect(() => {
-    fetch(`http://localhost:9000/search?q=${query}`, {
+    fetch(`/api/search?q=${query}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -68,7 +68,7 @@ function SearchPageContent() {
         dateCreated = atob(dateCreated);
 
         // get user from database
-        const response = await fetch("http://localhost:9000/profile/self", {
+        const response = await fetch("/api/profile/self", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

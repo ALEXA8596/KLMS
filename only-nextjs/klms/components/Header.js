@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import TopRightDropdown from "@/components/TopRightDropdown";
 import CreateDropDown from "@/components/CreateDropdown";
+import { signOut } from "@/auth";
 
 export default function Header({ userData }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,7 +40,7 @@ export default function Header({ userData }) {
             className="btn btn-primary ml-2"
             onClick={() => {
               console.log("Search query:", searchQuery);
-              window.location.href = `/search?q=${searchQuery}`;
+              window.location.href = `/app/search?q=${searchQuery}`;
             }}
           >
             Search
@@ -64,7 +65,7 @@ export default function Header({ userData }) {
           <div className="relative">
             <TopRightDropdown
               signOut={() => {
-                document.cookie = "";
+                signOut();
                 window.location.href = "/";
               }}
             />

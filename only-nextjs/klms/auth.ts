@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials"
+import CredentialsProvider from "next-auth/providers/credentials";
 
 export const {
   handlers: { GET, POST },
@@ -7,57 +7,62 @@ export const {
   signIn,
   signOut,
 } = NextAuth({
-  providers: [CredentialsProvider({
-    name: "Credentials",
-    credentials: {
-      username: {
-        label: "username",
-        type: "username",
-        placeholder: "Jane Doe"
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        username: {
+          label: "username",
+          type: "username",
+          placeholder: "Jane Doe",
+        },
+        password: {
+          label: "Password",
+          type: "password",
+        },
       },
-      password: {
-        label: "Password",
-        type: "password"
-      }
-    },
-    async authorize(credentials, req) {
-      console.log(credentials)
-      console.log(req)
-    
-      const res = await fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/login`, {
-        method: 'POST',
-        body: JSON.stringify(credentials),
-        headers: { "Content-Type": "application/json" }
-      })
-      const user = await res.json();
+      async authorize(credentials, req) {
+        console.log(credentials);
+        console.log(req);
 
-      console.log(user)
+        const res = await fetch(
+          `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/login`,
+          {
+            method: "POST",
+            body: JSON.stringify(credentials),
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        const user = await res.json();
 
-      // user.email = user.username;
-      user.name = user.username;
+        console.log(user);
 
-      // If no error and we have user data, return it
-      if (res.ok && user) {
-        return {
-          name: user.username,
-          // email: user.username,
-          id: user.id
+        // user.email = user.username;
+        user.name = user.username;
+
+        // If no error and we have user data, return it
+        if (res.ok && user) {
+          return {
+            name: user.username,
+            // email: user.username,
+            id: user.id,
+          };
         }
-      }
-      // Return null if user data could not be retrieved
-      return null
-    }
-  })],
+        // Return null if user data could not be retrieved
+        return null;
+      },
+    }),
+  ],
   callbacks: {
-    session({session, user, token}) {
-    //   console.log("User:")
-    //   console.log(user)
-    //   console.log("Session:")
-    //   console.log(session)
-    //   console.log("Token:")
-    //   console.log(token)
-    //   session.user.id = token?.sub || "";
-      return session
-    }
+    session({ session, user, token }) {
+      //   console.log("User:")
+      //   console.log(user)
+      //   console.log("Session:")
+      //   console.log(session)
+      //   console.log("Token:")
+      //   console.log(token)
+      //   session.user.id = token?.sub || "";
+      return session;
+    },
   },
 });

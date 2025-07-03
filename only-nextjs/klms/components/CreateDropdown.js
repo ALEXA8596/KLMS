@@ -12,10 +12,10 @@ function CreateDropdown() {
             </Dropdown.Toggle>
 
             <Dropdown.Menu style={{ marginTop: '0.125rem' }}>
-                <Dropdown.Item href="/create/lesson">
+                <Dropdown.Item href="/app/create/lesson">
                     <FontAwesomeIcon icon={faFile} className="mr-2" /> Lesson
                 </Dropdown.Item>
-                <Dropdown.Item href="/create/unit">
+                <Dropdown.Item href="/app/create/unit">
                     <FontAwesomeIcon icon={faQuestion} className="mr-2" /> Quiz
                 </Dropdown.Item>
             </Dropdown.Menu>

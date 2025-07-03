@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Unable to find a user with that username!' }, { status: 401 });
         }
 
-        const passwordMatch = await bcrypt.compare(password, user.password);
+        const passwordMatch = await bcrypt.compare(password, user.hashedPassword);
 
         if (!passwordMatch) {
             return NextResponse.json({ error: 'The password is incorrect!' }, { status: 401 });
@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
         // Authentication successful
         return NextResponse.json({ success: true, ...user });
     } catch (error) {
+      console.error('Login error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     } finally {
         await client.close();
