@@ -36,9 +36,9 @@ export async function GET(request: NextRequest) {
     const lessonsDatabase = dbClient.db("lessonsData");
     const lessons = lessonsDatabase.collection("lessons");
     const allLessons = await lessons.find({ creatorId: user.id }).toArray();
-    console.log(allLessons);
+    // console.log(allLessons);
     const lessonsWithNoParent = allLessons.filter((lesson) => !lesson.parentId);
-    console.log(lessonsWithNoParent);
+    // console.log(lessonsWithNoParent);
     async function getChildrenRecursive(lessonId: string): Promise<any[]> {
       const children = await lessons.find({ parentId: lessonId }).toArray();
       if (children.length === 0) return [];

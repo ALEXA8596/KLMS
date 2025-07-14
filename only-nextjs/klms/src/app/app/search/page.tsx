@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, Suspense, SetStateAction } from "react";
-const cookie = require("cookie");
 import { useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 
@@ -25,19 +24,12 @@ function SearchPageContent() {
 
   const [searchResults, setSearchResults] = useState<SearchResults>(null);
   const query = searchParams.get("q");
-  // State to hold search query
-  let cookies: { [key: string]: string } | null = null;
-
-  useEffect(() => {
-    cookies = cookie.parse(document.cookie);
-  }, []);
 
   useEffect(() => {
     fetch(`/api/search?q=${query}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + (cookies?.session_id ?? ""),
       },
     })
       .then((res) => res.json())
@@ -48,56 +40,43 @@ function SearchPageContent() {
       .catch((error) => {
         console.error("Error fetching search results:", error);
       });
-  }, [cookies]);
+  }, []);
 
   const [userData, setUserData] = useState(null);
   useEffect(() => {
     (async () => {
       // Fetch user
-      if(!cookies) return
+      // get user from database
+      const response = await fetch("/api/profile/self", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-      // get cookie
-      if (!cookies.session_id) {
-        console.log("No session_id cookie found");
+      const data = await response.json();
+      if (!data.success) {
+        console.error(data.error);
+        alert(
+          "There was an error when trying to fetch user data, try logging in again: " +
+            data.error
+        );
         window.location.href = "/";
+        return () => {};
       }
-      if (cookies.session_id) {
-        console.log("Attempting Remember Me");
-        var [id, dateCreated, hashedToken] = cookies.session_id.split(".");
-        id = atob(id);
-        dateCreated = atob(dateCreated);
-
-        // get user from database
-        const response = await fetch("/api/profile/self", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + cookies.session_id,
-          },
-        });
-
-        const data = await response.json();
-        if (!data.success) {
-          console.error(data.error);
-          alert(
-            "There was an error when trying to fetch user data, try logging in again: " +
-              data.error
-          );
-          window.location.href = "/";
-          return () => {};
-        }
-        if (data.success) {
-          console.log(data);
-          setUserData(data.user);
-          return () => {};
-        }
+      if (data.success) {
+        console.log(data);
+        setUserData(data.user);
+        return () => {};
       }
     })();
-  }, [cookies]);
+  }, []);
 
   const [searchType, setSearchType] = useState("lessons"); // Default to 'communities'
 
-  const handleChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+  const handleChange = (event: {
+    target: { value: SetStateAction<string> };
+  }) => {
     setSearchType(event.target.value);
   };
 

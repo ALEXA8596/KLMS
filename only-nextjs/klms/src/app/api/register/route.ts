@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
-import { createPatch, applyPatch } from "diff";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 
@@ -9,6 +8,7 @@ if (!uri) {
   throw new Error("MONGODB_URI environment variable is not set");
 }
 const dbClient = new MongoClient(uri);
+
 // POST /api/register
 export async function POST(request: NextRequest) {
   try {
@@ -48,14 +48,9 @@ export async function POST(request: NextRequest) {
       hashedPassword: bcrypt.hashSync(password, 10),
       id: uuidv4(),
       timestampCreated: Date.now(),
-      // sessionCookies: [], // Deprecated
     };
 
     await userData.insertOne(user);
-
-    // function toBase64(string: String): string {
-    //   return Buffer.from(string).toString("base64");
-    // }
 
     return NextResponse.json(
       { success: true, user: { ...user, password: undefined } },

@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-const cookie = require("cookie");
 
 import Header from "@/components/Header";
 
@@ -13,7 +12,6 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       // Fetch user
-      console.log("Attempting Remember Me");
 
       // get user from database
       const response = await fetch("/api/profile/self", {

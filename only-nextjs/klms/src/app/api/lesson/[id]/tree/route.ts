@@ -70,6 +70,5 @@ export async function GET(request: NextRequest) {
 
   const hierarchy = await buildHierarchy(id);
 
-  // TODO: Implement lesson tree logic
   return NextResponse.json({ success: true, tree: hierarchy });
 }

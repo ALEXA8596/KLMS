@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
-import { createPatch, applyPatch } from "diff";
 import { v4 as uuidv4 } from "uuid";
-import bcrypt from "bcrypt";
 import { getToken } from "next-auth/jwt";
 
 const uri: string = process.env.MONGODB_URI ?? "";
@@ -13,13 +11,16 @@ const dbClient = new MongoClient(uri);
 
 // POST /api/lessons/create
 export async function POST(request: NextRequest) {
-  const { name, description, content, parentId }  = await request.json();
+  const { name, description, content, parentId } = await request.json();
 
   if (!name || !description || !content) {
-    return NextResponse.json({
-      success: false,
-      error: "Name, description, and content are required",
-    }, { status: 400 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Name, description, and content are required",
+      },
+      { status: 400 }
+    );
   }
 
   const token = await getToken({
@@ -28,10 +29,13 @@ export async function POST(request: NextRequest) {
   });
 
   if (!token) {
-    return NextResponse.json({
-      success: false,
-      error: "Unauthorized",
-    }, { status: 401 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Unauthorized",
+      },
+      { status: 401 }
+    );
   }
 
   const userId = token.sub;
@@ -40,27 +44,35 @@ export async function POST(request: NextRequest) {
   const userData = userDatabase.collection("users");
   const user = await userData.findOne({ id: userId });
   if (!user) {
-    return NextResponse.json({
-      success: false,
-      error: "User not found",
-    }, { status: 404 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: "User not found",
+      },
+      { status: 404 }
+    );
   }
 
   const database = dbClient.db("lessonsData");
   const lessons = database.collection("lessons");
 
-let parentLesson = null;
+  let parentLesson = null;
   if (parentId) {
     parentLesson = await lessons.findOne({ id: parentId });
     if (!parentLesson) {
-      return NextResponse.json({ success: false, error: 'Parent lesson not found' });
+      return NextResponse.json({
+        success: false,
+        error: "Parent lesson not found",
+      });
     }
     const parentHeight = parentLesson.treeHeight || 1;
     if (parentHeight >= 4) {
-      return NextResponse.json({ success: false, error: 'Maximum tree height exceeded' });
+      return NextResponse.json({
+        success: false,
+        error: "Maximum tree height exceeded",
+      });
     }
   }
-
 
   const lesson = {
     id: uuidv4() as string,
@@ -89,14 +101,19 @@ let parentLesson = null;
   if (parentLesson) {
     await lessons.updateOne(
       { id: parentId },
-      { $push: { children: lesson.id as string } }
+      // @ts-ignore
+      { $push: { children: {
+        id: lesson.id,
+        type: "lesson", // Type can be 'lesson' or 'quiz'
+      } } }
     );
   }
 
-  return NextResponse.json({
-    success: true,
-    lessonId: lesson.id,
-  }, { status: 201 });
-
-
+  return NextResponse.json(
+    {
+      success: true,
+      lessonId: lesson.id,
+    },
+    { status: 201 }
+  );
 }

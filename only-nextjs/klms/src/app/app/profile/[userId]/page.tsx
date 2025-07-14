@@ -13,7 +13,9 @@ interface ProfilePageProps {
 }
 
 export default function Profile({ params }: ProfilePageProps) {
-
+    const [userInfo, setUserInfo] = useState<UserInfo>({});
+    const [posts, setPosts] = useState<any[]>([]);
+    
     // user id
     const { userId: id } = params;
     interface UserInfo {
@@ -22,14 +24,8 @@ export default function Profile({ params }: ProfilePageProps) {
         posts?: any[];
         [key: string]: any;
     }
-    const [userInfo, setUserInfo] = useState<UserInfo>({});
-    const [posts, setPosts] = useState<any[]>([]);
 
-    let cookies: { [key: string]: string } | null = null;
 
-    useEffect(() => {
-        cookies = cookie.parse(document.cookie);
-    }, []);
     // useEffect to fetch data
     useEffect(() => {
         // Fetch data
@@ -50,24 +46,11 @@ export default function Profile({ params }: ProfilePageProps) {
 
         (async () => {
             // Fetch user
-
-            // get cookie
-            if (!cookies || !cookies.session_id) {
-                console.log("No session_id cookie found")
-                window.location.href = '/'
-            }
-            if (cookies && cookies.session_id) {
-                console.log("Attempting Remember Me")
-                var [id, dateCreated, hashedToken] = cookies.session_id.split('.');
-                id = atob(id);
-                dateCreated = atob(dateCreated);
-
                 // get user from database
                 const response = await fetch('/api/profile/self', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + (cookies && cookies.session_id ? cookies.session_id : ''),
                     },
                 });
 
@@ -83,9 +66,9 @@ export default function Profile({ params }: ProfilePageProps) {
                     setUserData(data.user);
                     return () => { };
                 }
-            }
+            
         })();
-    }, [cookies]);
+    }, []);
 
     return (<>
         <div className="mx-auto">

@@ -19,15 +19,6 @@ export default function Lesson({ params }: LessonPageProps) {
   // const [searchQuery, setSearchQuery] = useState('');
   const { lessonId } = params;
 
-  const [cookies, setCookies] = useState<Record<string, string> | null>(null);
-
-  useEffect(() => {
-    if (typeof document !== "undefined") {
-      setCookies(cookie.parse(document.cookie));
-      console.log(cookies);
-    }
-  }, []);
-
   const [content, setContent] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -41,46 +32,31 @@ export default function Lesson({ params }: LessonPageProps) {
   const [userData, setUserData] = useState<UserType | null>(null);
   useEffect(() => {
     (async () => {
-      // Fetch user
-      console.log(cookies);
-      // get cookie
-      if (cookies && !cookies.session_id) {
-        console.log("No session_id cookie found");
+      // get user from database
+      const response = await fetch("/api/profile/self", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        console.error(data.error);
+        alert(
+          "There was an error when trying to fetch user data, try logging in again: " +
+            data.error
+        );
         window.location.href = "/";
+        return () => {};
       }
-      if (cookies && cookies.session_id) {
-        console.log("Attempting Remember Me");
-        var [id, dateCreated, hashedToken] = cookies.session_id.split(".");
-        id = atob(id);
-        dateCreated = atob(dateCreated);
-
-        // get user from database
-        const response = await fetch("/api/profile/self", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + (cookies?.session_id ?? ""),
-          },
-        });
-
-        const data = await response.json();
-        if (!data.success) {
-          console.error(data.error);
-          alert(
-            "There was an error when trying to fetch user data, try logging in again: " +
-              data.error
-          );
-          window.location.href = "/";
-          return () => {};
-        }
-        if (data.success) {
-          console.log(data);
-          setUserData(data.user);
-          return () => {};
-        }
+      if (data.success) {
+        console.log(data);
+        setUserData(data.user);
+        return () => {};
       }
     })();
-  }, [cookies]);
+  }, []);
 
   interface LessonType {
     id: string;
@@ -143,22 +119,28 @@ export default function Lesson({ params }: LessonPageProps) {
             const lessonContent = content;
             const form = e.target as HTMLFormElement;
             try {
-              const response = await fetch(
-                "/api/lesson/" + lessonId,
-                {
-                  method: "PUT",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + (cookies?.session_id ?? ""),
-                  },
-                  body: JSON.stringify({
-                    name: (form.elements.namedItem("lessonName") as HTMLInputElement)?.value,
-                    description: (form.elements.namedItem("lessonDescription") as HTMLTextAreaElement)?.value,
-                    content: lessonContent,
-                    changelog: (form.elements.namedItem("lessonChangelog") as HTMLTextAreaElement)?.value,
-                  }),
-                }
-              );
+              const response = await fetch("/api/lesson/" + lessonId, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  name: (
+                    form.elements.namedItem("lessonName") as HTMLInputElement
+                  )?.value,
+                  description: (
+                    form.elements.namedItem(
+                      "lessonDescription"
+                    ) as HTMLTextAreaElement
+                  )?.value,
+                  content: lessonContent,
+                  changelog: (
+                    form.elements.namedItem(
+                      "lessonChangelog"
+                    ) as HTMLTextAreaElement
+                  )?.value,
+                }),
+              });
               const data = await response.json();
               if (data.success) {
                 alert("Lesson edited successfully!");

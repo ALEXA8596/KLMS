@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
-import { createPatch, applyPatch } from "diff";
-import { v4 as uuidv4 } from "uuid";
-import bcrypt from "bcrypt";
 
 const uri: string = process.env.MONGODB_URI ?? "";
 if (!uri) {
@@ -43,7 +40,7 @@ export async function GET(request: NextRequest) {
     : null;
   const children =
     lesson.children.length > 0
-      ? await lessons.find({ id: { $in: lesson.children } }).toArray()
+      ? await lessons.find({ id: { $in: lesson.children.map((child: { id: string, type: "lesson" | "quiz"}) => child.id) } }).toArray()
       : [];
 
   return NextResponse.json({

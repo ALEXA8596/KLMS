@@ -24,7 +24,6 @@ export async function POST(req: NextRequest) {
 
 
         if (!user) {
-
             return NextResponse.json({ error: 'Unable to find a user with that username!' }, { status: 401 });
         }
 

@@ -69,52 +69,43 @@ export async function PUT(request: NextRequest) {
       "New Version"
     );
 
-    // Update lesson with new content and store patch
-    // Prepare new patches and history arrays on the server
-    const newPatch = {
-      ...currentLesson,
-      content: patch,
-      name: namePatch,
-      description: descriptionPatch,
-    };
-    const newHistory = {
-      version: currentLesson.version + 1,
-      timestamp: Date.now(),
-      creatorId: token.sub,
-      changelog: changelog || "No changelog provided",
-    };
-
-    const updatedPatches = Array.isArray(currentLesson.patches)
-      ? [...currentLesson.patches, newPatch]
-      : [newPatch];
-
-    const updatedHistory = Array.isArray(currentLesson.history)
-      ? [...currentLesson.history, newHistory]
-      : [newHistory];
-
     await lessons.updateOne(
       { id },
       {
-      $set: {
-        content,
-        description,
-        name,
-        patches: updatedPatches,
-        history: updatedHistory,
-        version: currentLesson.version + 1,
-      },
+        $set: {
+          content,
+          description,
+        },
+        // @ts-ignore
+        $push: {
+          patches: {
+            content: patch,
+            name: namePatch,
+            description: descriptionPatch,
+          },
+          history: {
+            version: currentLesson.version + 1,
+            timestamp: Date.now(),
+            creatorId: token.id,
+            changelog: changelog || "No changelog provided",
+          },
+        },
+        $inc: { version: 1 },
       }
     );
 
-    await dbClient.connect();
-    return NextResponse.json({ success: true, message: "Lesson updated", content: {
-      id,
-      content,
-      description,
-      name,
-      version: currentLesson.version + 1,
-      changelog: changelog || "No changelog provided",
-    } });
+    return NextResponse.json({
+      success: true,
+      message: "Lesson updated",
+      content: {
+        id,
+        content,
+        description,
+        name,
+        version: currentLesson.version + 1,
+        changelog: changelog || "No changelog provided",
+      },
+    });
   } catch (error) {
     console.error("Error updating lesson:", error);
     return NextResponse.json(
@@ -136,9 +127,59 @@ export async function PUT(request: NextRequest) {
 //     : NextResponse.json({ success: false, error: "Unauthorized" });
 // }
 
+/**
+ Make sure that when this is called, the user is told that the lesson's children will be deleted too.
+*/
 export async function DELETE(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const id = searchParams.get("id");
-  // TODO: Implement lesson delete logic
-  return NextResponse.json({ success: false, error: "Not implemented" });
+
+  const database = dbClient.db("lessonsData");
+  const lessons = database.collection("lessons");
+
+  const quizzesDB = dbClient.db("quizzesData");
+  const quizzes = quizzesDB.collection("quizzes");
+
+  const lesson = await lessons.findOne({ id });
+  if (!lesson || !id) {
+    return NextResponse.json({ success: false, error: "Lesson not found" });
+  }
+
+  // Remove lesson from parent's children array
+  if (lesson.parentId) {
+    await lessons.updateOne(
+      { id: lesson.parentId },
+      // @ts-ignore
+      { $pull: { children: {
+        id: lesson.id,
+      } } }
+    );
+  }
+
+  // Recursively delete all children
+  async function deleteChildren(page: {
+    id: string;
+    type: string; // 'lesson' or 'quiz'
+  }) {
+    if( page.type === 'quiz') {
+      // Quizzes can't have children
+      await quizzes.deleteOne({ id: page.id });
+      return;
+    }
+
+    const lessonDoc = await lessons.findOne({ id: page.id });
+    const children = lessonDoc?.children || [];
+    for (const child of children) {
+      await deleteChildren(child);
+    }
+
+    await lessons.deleteOne({ id: page.id });
+  }
+
+  await deleteChildren({ id, type: 'lesson' });
+
+  return NextResponse.json({
+    success: true,
+    message: "Lesson and its children deleted successfully",
+  });
 }

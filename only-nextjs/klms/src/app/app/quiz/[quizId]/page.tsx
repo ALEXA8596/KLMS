@@ -13,13 +13,13 @@ import Header from "@/components/Header";
 
 import Markdown from "react-markdown";
 
-interface LessonParams {
-  lessonId: string;
+interface QuizParams {
+  quizId: string;
 }
 
-export default function Lesson({ params }: { params: LessonParams }) {
+export default function Quiz({ params }: { params: QuizParams }) {
   // user id
-  const { lessonId } = params;
+  const { quizId } = params;
   interface UserType {
     id: string;
     // Add other user properties as needed
@@ -41,17 +41,11 @@ export default function Lesson({ params }: { params: LessonParams }) {
    * An object with id, name, and children of the lesson, with the children being an array of lessons with id, name and children properties
    */
   const [lessonHierarchy, setLessonHierarchy] = useState(null);
-  // const [lessonId, setLessonId] = useState(lessonId);
 
-  let cookies: { [key: string]: string } | null = null;
-
-  useEffect(() => {
-    cookies = cookie.parse(document.cookie);
-  }, []);
   // use useEffect to fetch post data & profile data
   useEffect(() => {
     // Fetch data
-    fetch(`/api/lessons/${lessonId}`)
+    fetch(`/api/lessons/${quizId}`)
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
@@ -62,18 +56,18 @@ export default function Lesson({ params }: { params: LessonParams }) {
       });
 
     console.log(lesson);
-  }, [lessonId]);
+  }, [quizId]);
 
   useEffect(() => {
     // Fetch data
-    fetch(`/api/lesson/${lessonId}/tree`)
+    fetch(`/api/quiz/${quizId}/tree`)
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
         setLessonHierarchy(data.tree || []);
       })
       .catch((error) => {
-        console.error("Error fetching post data:", error);
+        console.error("Error fetching quiz tree hierarchy:", error);
       });
 
     console.log(lessonHierarchy);
@@ -83,6 +77,7 @@ export default function Lesson({ params }: { params: LessonParams }) {
     (async () => {
       // Fetch user
 
+      // get user from database
       const response = await fetch("/api/profile/self", {
         method: "GET",
         headers: {
@@ -100,13 +95,14 @@ export default function Lesson({ params }: { params: LessonParams }) {
         window.location.href = "/";
         return () => {};
       }
+
       if (data.success) {
         console.log(data);
         setUserData(data.user);
         return () => {};
       }
     })();
-  }, [cookies]);
+  }, []);
 
   return (
     <>
@@ -118,7 +114,7 @@ export default function Lesson({ params }: { params: LessonParams }) {
             {lessonHierarchy && (
               <LessonTree
                 hierarchy={lessonHierarchy}
-                currentLessonId={lessonId}
+                currentLessonId={quizId}
               />
             )}
           </div>
@@ -135,7 +131,7 @@ export default function Lesson({ params }: { params: LessonParams }) {
                 <ShareBar post={lesson}></ShareBar>
                 {userData && lesson && userData.id === lesson.creatorId && (
                   <a
-                    href={`/lesson/${lessonId}/edit`}
+                    href={`/quiz/${quizId}/edit`}
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 inline-block"
                   >
                     <FontAwesomeIcon icon={faEdit} className="mr-2" />
