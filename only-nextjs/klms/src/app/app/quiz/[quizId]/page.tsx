@@ -18,6 +18,12 @@ interface QuizParams {
 }
 
 export default function Quiz({ params }: { params: QuizParams }) {
+  const [quiz, setQuiz] = useState<LessonType | null>(null);
+  const [userData, setUserData] = useState<UserType | null>(null);
+  /**
+   * An object with id, name, and children of the lesson, with the children being an array of lessons with id, name and children properties
+   */
+  const [lessonHierarchy, setLessonHierarchy] = useState(null);
   // user id
   const { quizId } = params;
   interface UserType {
@@ -25,7 +31,7 @@ export default function Quiz({ params }: { params: QuizParams }) {
     // Add other user properties as needed
     [key: string]: any;
   }
-  const [userData, setUserData] = useState<UserType | null>(null);
+
   // const [posts, setPosts] = useState(null);
   interface LessonType {
     id: string;
@@ -33,29 +39,22 @@ export default function Quiz({ params }: { params: QuizParams }) {
     content: string;
     creatorId: string;
     creatorName: string;
-    // Add other properties as needed
   }
-
-  const [lesson, setLesson] = useState<LessonType | null>(null);
-  /**
-   * An object with id, name, and children of the lesson, with the children being an array of lessons with id, name and children properties
-   */
-  const [lessonHierarchy, setLessonHierarchy] = useState(null);
 
   // use useEffect to fetch post data & profile data
   useEffect(() => {
     // Fetch data
-    fetch(`/api/lessons/${quizId}`)
+    fetch(`/api/quizzes/${quizId}`)
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
-        setLesson(data.lesson || []);
+        setQuiz(data.quiz || []);
       })
       .catch((error) => {
         console.error("Error fetching post data:", error);
       });
 
-    console.log(lesson);
+    console.log(quiz);
   }, [quizId]);
 
   useEffect(() => {
@@ -71,7 +70,7 @@ export default function Quiz({ params }: { params: QuizParams }) {
       });
 
     console.log(lessonHierarchy);
-  }, [lesson]);
+  }, [quiz]);
 
   useEffect(() => {
     (async () => {
@@ -118,18 +117,18 @@ export default function Quiz({ params }: { params: QuizParams }) {
               />
             )}
           </div>
-          {lesson ? (
+          {quiz ? (
             <div className="flex flex-row justify-start bg-blue-200 rounded-lg p-4 w-full">
               <div className="w-full">
-                <h2 className="text-lg font-bold">{lesson.name}</h2>
+                <h2 className="text-lg font-bold">{quiz.name}</h2>
                 <p className="text-sm text-gray-500 mb-4">
-                  Posted by {lesson.creatorName}
+                  Posted by {quiz.creatorName}
                 </p>
                 <p className="mb-4">
-                  <Markdown>{lesson.content}</Markdown>
+                  <Markdown>{quiz.content}</Markdown>
                 </p>
-                <ShareBar post={lesson}></ShareBar>
-                {userData && lesson && userData.id === lesson.creatorId && (
+                <ShareBar post={quiz}></ShareBar>
+                {userData && quiz && userData.id === quiz.creatorId && (
                   <a
                     href={`/quiz/${quizId}/edit`}
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 inline-block"
