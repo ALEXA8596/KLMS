@@ -494,7 +494,7 @@ app.put('/api/lesson/:id', async (req, res) => {
   if (!verifyAuthorization(req)) return res.send({ success: false, error: 'Unauthorized' });
 
   const { id } = req.params;
-  const { content, description } = req.body;
+  const { content, description, name } = req.body;
   const user = await verifyAuthorization(req);
 
   const database = dbClient.db('lessonsData');

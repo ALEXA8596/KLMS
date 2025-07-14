@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
-import { createPatch, applyPatch } from "diff";
-import { v4 as uuidv4 } from "uuid";
-import bcrypt from "bcrypt";
+import { applyPatch } from "diff";
 
 const uri: string = process.env.MONGODB_URI ?? "";
 if (!uri) {
