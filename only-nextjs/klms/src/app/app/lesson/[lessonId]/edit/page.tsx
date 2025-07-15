@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-const cookie = require("cookie");
 
 import Header from "@/components/Header"; // Assuming you have a Header component in your components directory
 import MDEditor from "@uiw/react-md-editor";

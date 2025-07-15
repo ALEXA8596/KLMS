@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-const cookie = require("cookie");
 
 import ShareBar from "@/components/ShareBar";
 
@@ -43,11 +42,6 @@ export default function Lesson({ params }: { params: LessonParams }) {
   const [lessonHierarchy, setLessonHierarchy] = useState(null);
   // const [lessonId, setLessonId] = useState(lessonId);
 
-  let cookies: { [key: string]: string } | null = null;
-
-  useEffect(() => {
-    cookies = cookie.parse(document.cookie);
-  }, []);
   // use useEffect to fetch post data & profile data
   useEffect(() => {
     // Fetch data
@@ -106,7 +100,7 @@ export default function Lesson({ params }: { params: LessonParams }) {
         return () => {};
       }
     })();
-  }, [cookies]);
+  }, []);
 
   return (
     <>

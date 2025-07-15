@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-const cookie = require("cookie");
 
 import Header from "@/components/Header";
 

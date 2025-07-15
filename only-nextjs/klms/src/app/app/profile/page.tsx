@@ -2,8 +2,7 @@
 // import { useRouter, } from 'next/router'
 import { useEffect, useState, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faCog, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
-const cookie = require("cookie");
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 
 import Header from "@/components/Header";
 

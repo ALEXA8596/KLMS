@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-const cookie = require("cookie");
 
 import ShareBar from "@/components/ShareBar";
 
@@ -11,14 +10,17 @@ import { faEdit } from "@fortawesome/free-solid-svg-icons";
 
 import Header from "@/components/Header";
 
-import Markdown from "react-markdown";
+
+import dynamic from "next/dynamic";
+// @ts-ignore
+const QuizComponent = dynamic(() => import("react-quiz-component"), { ssr: false });
 
 interface QuizParams {
   quizId: string;
 }
 
-export default function Quiz({ params }: { params: QuizParams }) {
-  const [quiz, setQuiz] = useState<LessonType | null>(null);
+export default function QuizPage({ params }: { params: QuizParams }) {
+  const [quiz, setQuiz] = useState<any | null>(null);
   const [userData, setUserData] = useState<UserType | null>(null);
   /**
    * An object with id, name, and children of the lesson, with the children being an array of lessons with id, name and children properties
@@ -33,28 +35,20 @@ export default function Quiz({ params }: { params: QuizParams }) {
   }
 
   // const [posts, setPosts] = useState(null);
-  interface LessonType {
-    id: string;
-    name: string;
-    content: string;
-    creatorId: string;
-    creatorName: string;
-  }
+
 
   // use useEffect to fetch post data & profile data
+
   useEffect(() => {
-    // Fetch data
     fetch(`/api/quizzes/${quizId}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
-        setQuiz(data.quiz || []);
+        // Expecting data.quiz to be in react-quiz-component format
+        setQuiz(data.quiz || null);
       })
       .catch((error) => {
-        console.error("Error fetching post data:", error);
+        console.error("Error fetching quiz data:", error);
       });
-
-    console.log(quiz);
   }, [quizId]);
 
   useEffect(() => {
@@ -120,22 +114,8 @@ export default function Quiz({ params }: { params: QuizParams }) {
           {quiz ? (
             <div className="flex flex-row justify-start bg-blue-200 rounded-lg p-4 w-full">
               <div className="w-full">
-                <h2 className="text-lg font-bold">{quiz.name}</h2>
-                <p className="text-sm text-gray-500 mb-4">
-                  Posted by {quiz.creatorName}
-                </p>
-                <p className="mb-4">
-                  <Markdown>{quiz.content}</Markdown>
-                </p>
-                <ShareBar post={quiz}></ShareBar>
-                {userData && quiz && userData.id === quiz.creatorId && (
-                  <a
-                    href={`/quiz/${quizId}/edit`}
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 inline-block"
-                  >
-                    <FontAwesomeIcon icon={faEdit} className="mr-2" />
-                    Edit Lesson
-                  </a>
+                {QuizComponent && (
+                  ((QuizComponent as any)({ quiz }))
                 )}
               </div>
             </div>
