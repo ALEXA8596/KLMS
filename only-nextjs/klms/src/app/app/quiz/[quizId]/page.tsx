@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import ShareBar from "@/components/ShareBar";
 
@@ -10,16 +10,15 @@ import { faEdit } from "@fortawesome/free-solid-svg-icons";
 
 import Header from "@/components/Header";
 
-
 import dynamic from "next/dynamic";
-// @ts-ignore
+
 const QuizComponent = dynamic(() => import("react-quiz-component"), { ssr: false });
 
 interface QuizParams {
   quizId: string;
 }
 
-export default function QuizPage({ params }: { params: QuizParams }) {
+export default function QuizPage({ params }: { params: QuizParams | any }) {
   const [quiz, setQuiz] = useState<any | null>(null);
   const [userData, setUserData] = useState<UserType | null>(null);
   /**
@@ -27,7 +26,10 @@ export default function QuizPage({ params }: { params: QuizParams }) {
    */
   const [lessonHierarchy, setLessonHierarchy] = useState(null);
   // user id
-  const { quizId } = params;
+  // Unwrap params if it's a promise (Next.js App Router)
+  // @ts-ignore
+  const { quizId } = typeof params.then === "function" ? React.use(params) : params;
+
   interface UserType {
     id: string;
     // Add other user properties as needed
@@ -35,7 +37,6 @@ export default function QuizPage({ params }: { params: QuizParams }) {
   }
 
   // const [posts, setPosts] = useState(null);
-
 
   // use useEffect to fetch post data & profile data
 
@@ -114,9 +115,7 @@ export default function QuizPage({ params }: { params: QuizParams }) {
           {quiz ? (
             <div className="flex flex-row justify-start bg-blue-200 rounded-lg p-4 w-full">
               <div className="w-full">
-                {QuizComponent && (
-                  ((QuizComponent as any)({ quiz }))
-                )}
+                {QuizComponent && ((QuizComponent as any)({ quiz }))}
               </div>
             </div>
           ) : (

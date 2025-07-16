@@ -53,6 +53,7 @@ export default function Quiz() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ...values,
+                    nrOfQuestions: values.questions.length,
                     parentId: parentId || null,
                 }),
             });
@@ -96,6 +97,7 @@ export default function Quiz() {
                 </div>
                 <QuizForm onSubmit={handleQuizSubmit} submitting={submitting} />
                 {result && <QuizFormResult result={result} />}
+                <br />
             </main>
         </div>
     );

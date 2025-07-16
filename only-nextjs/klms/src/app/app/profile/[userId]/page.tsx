@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from 'react';
-const cookie = require('cookie');
 
 import Header from '@/components/Header';
 
@@ -15,7 +14,7 @@ interface ProfilePageProps {
 export default function Profile({ params }: ProfilePageProps) {
     const [userInfo, setUserInfo] = useState<UserInfo>({});
     const [posts, setPosts] = useState<any[]>([]);
-    
+
     // user id
     const { userId: id } = params;
     interface UserInfo {

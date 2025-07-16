@@ -11,7 +11,7 @@ if (!uri) {
 const dbClient = new MongoClient(uri);
 
 // PUT, DELETE /api/quiz/[id]
-export async function PUT(request: NextRequest) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
     try {
         const token = await getToken({
             req: request,
@@ -23,9 +23,8 @@ export async function PUT(request: NextRequest) {
                 { status: 401 }
             );
         }
-
-        const { searchParams } = request.nextUrl;
-        const id = searchParams.get("id");
+        const { id } = params;
+        
         const { title, description, progressBarColor, nrOfQuestions, questions, changelog } = await request.json();
 
         if (!id || !title || !description || !nrOfQuestions || !questions) {

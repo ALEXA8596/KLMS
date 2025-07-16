@@ -8,9 +8,8 @@ if (!uri) {
 const dbClient = new MongoClient(uri);
 
 // GET /api/quiz/[id]/tree
-export async function GET(request: NextRequest) {
-    const { searchParams } = request.nextUrl;
-    const id = searchParams.get("id");
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+    const { id } = await params;
 
     const quizzesDB = dbClient.db("quizzesData");
     const quizzesCollection = quizzesDB.collection("quizzes");

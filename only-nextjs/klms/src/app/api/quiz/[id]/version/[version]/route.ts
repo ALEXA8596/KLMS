@@ -9,10 +9,8 @@ if (!uri) {
 const dbClient = new MongoClient(uri);
 
 // GET /api/quiz/[id]/version/[version]
-export async function GET(request: NextRequest) {
-    const { searchParams } = request.nextUrl;
-    const id = searchParams.get("id");
-    const version = searchParams.get("version");
+export async function GET(request: NextRequest, { params }: { params: { id: string, version: string } }) {
+    const { id, version } = await params;
 
     if (!id || !version) {
         return NextResponse.json({

@@ -9,8 +9,7 @@ const dbClient = new MongoClient(uri);
 
 // GET /api/lessons/[id]
 export async function GET(request: NextRequest) {
-  const { searchParams } = request.nextUrl;
-  const id = searchParams.get("id");
+  const id = request.nextUrl.pathname.split("/").pop();
 
   const database = dbClient.db("lessonsData");
   const lessons = database.collection("lessons");
@@ -40,7 +39,15 @@ export async function GET(request: NextRequest) {
     : null;
   const children =
     lesson.children.length > 0
-      ? await lessons.find({ id: { $in: lesson.children.map((child: { id: string, type: "lesson" | "quiz"}) => child.id) } }).toArray()
+      ? await lessons
+          .find({
+            id: {
+              $in: lesson.children.map(
+                (child: { id: string; type: "lesson" | "quiz" }) => child.id
+              ),
+            },
+          })
+          .toArray()
       : [];
 
   return NextResponse.json({
