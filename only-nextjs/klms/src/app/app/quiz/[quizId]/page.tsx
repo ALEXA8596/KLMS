@@ -10,9 +10,7 @@ import { faEdit } from "@fortawesome/free-solid-svg-icons";
 
 import Header from "@/components/Header";
 
-import dynamic from "next/dynamic";
-
-const QuizComponent = dynamic(() => import("react-quiz-component"), { ssr: false });
+import Quiz from "@/components/Quiz/Quiz"
 
 interface QuizParams {
   quizId: string;
@@ -115,7 +113,12 @@ export default function QuizPage({ params }: { params: QuizParams | any }) {
           {quiz ? (
             <div className="flex flex-row justify-start bg-blue-200 rounded-lg p-4 w-full">
               <div className="w-full">
-                {QuizComponent && ((QuizComponent as any)({ quiz }))}
+                {quiz && (
+                  <Quiz
+                    quiz={{...quiz, progressBarColor: "#4f46e5",}}
+                    
+                  />
+                )}
               </div>
             </div>
           ) : (
