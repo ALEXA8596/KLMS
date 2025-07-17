@@ -115,8 +115,7 @@ export default function QuizPage({ params }: { params: QuizParams | any }) {
               <div className="w-full">
                 {quiz && (
                   <Quiz
-                    quiz={{...quiz, progressBarColor: "#4f46e5",}}
-                    
+                    quiz={{ ...quiz, progressBarColor: "#4f46e5", }} shuffle={undefined} shuffleAnswer={undefined} showDefaultResult={undefined} onComplete={undefined} customResultPage={undefined} showInstantFeedback={undefined} continueTillCorrect={undefined} revealAnswerOnSubmit={undefined} allowNavigation={undefined} onQuestionSubmit={undefined} disableSynopsis={undefined} timer={undefined} allowPauseTimer={undefined} enableProgressBar={undefined}                    
                   />
                 )}
               </div>
