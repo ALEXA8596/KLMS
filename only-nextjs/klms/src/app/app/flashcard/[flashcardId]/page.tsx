@@ -16,11 +16,7 @@ interface FlashcardParams {
   flashcardId: string;
 }
 
-export default function FlashcardPage({
-  params,
-}: {
-  params: FlashcardParams | any;
-}) {
+export default function FlashcardPage({ params }: { params: FlashcardParams | any }) {
   const [flashcard, setFlashcard] = useState<any | null>(null);
   const [userData, setUserData] = useState<UserType | null>(null);
   /**
@@ -30,8 +26,7 @@ export default function FlashcardPage({
   // user id
   // Unwrap params if it's a promise (Next.js App Router)
   // @ts-ignore
-  const { flashcardId } =
-    typeof params.then === "function" ? React.use(params) : params;
+  const { flashcardId } = typeof params.then === "function" ? React.use(params) : params;
 
   interface UserType {
     id: string;
@@ -122,10 +117,39 @@ export default function FlashcardPage({
                 {flashcard.description && (
                   <p className="text-gray-700 mb-6">{flashcard.description}</p>
                 )}
-
+                
                 {/* Simple flashcard display - you'll want to create a proper Flashcard component */}
                 <div className="space-y-4">
-                  <FlashcardArray cards={flashcard.cards} />
+                  {flashcard.cards && flashcard.cards.map((card: any, index: number) => (
+                    <div key={index} className="bg-white rounded-lg shadow-md p-6">
+                      <div className="mb-4">
+                        <h3 className="font-semibold text-lg mb-2">Front:</h3>
+                        <p className="text-gray-800">{card.front}</p>
+                      </div>
+                      <div className="mb-4">
+                        <h3 className="font-semibold text-lg mb-2">Back:</h3>
+                        <p className="text-gray-800">{card.back}</p>
+                      </div>
+                      {card.hint && (
+                        <div className="mb-4">
+                          <h3 className="font-semibold text-lg mb-2">Hint:</h3>
+                          <p className="text-gray-600 italic">{card.hint}</p>
+                        </div>
+                      )}
+                      {card.difficulty && (
+                        <div className="flex items-center">
+                          <span className="font-semibold mr-2">Difficulty:</span>
+                          <span className={`px-2 py-1 rounded text-sm ${
+                            card.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
+                            card.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {card.difficulty}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
