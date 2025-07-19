@@ -55,3 +55,59 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 }
+
+// POST /api/profile/self
+export async function POST(request: NextRequest) {
+  try {
+    const token = await getToken({
+      req: request,
+      secret: process.env.AUTH_SECRET,
+    });
+
+    if (!token || !token.sub || !token.name) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { name, description, profilePicture } = await request.json();
+
+    if (!name || !description) {
+      return NextResponse.json({
+        success: false,
+        error: "Name and description are required",
+      });
+    }
+
+    const database = dbClient.db("userData");
+    const userData = database.collection("users");
+    const user = await userData.findOne({
+      id: token.sub,
+    });
+
+    if (!user) {
+      return NextResponse.json({
+        success: false,
+        error: "User not found",
+      });
+    }
+
+    const updatedUser = {
+      ...user,
+      name,
+      description,
+      profilePicture: profilePicture || user.profilePicture,
+    };
+
+    await userData.updateOne(
+      { id: user.id },
+      { $set: updatedUser }
+    );
+
+    return NextResponse.json({
+      success: true,
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error updating self profile:", error);
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+}

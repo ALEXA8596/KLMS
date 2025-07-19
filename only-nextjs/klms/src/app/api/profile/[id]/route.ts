@@ -11,9 +11,8 @@ if (!uri) {
 const dbClient = new MongoClient(uri);
 
 // GET /api/profile/[id]
-export async function GET(request: NextRequest) {
-  const { searchParams } = request.nextUrl;
-  const id = searchParams.get("id");
+export async function GET(request: NextRequest, params: { params: { id: string } }) {
+  const { id } = params.params;
 
   if (!id) {
     return NextResponse.json({

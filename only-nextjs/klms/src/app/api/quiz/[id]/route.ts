@@ -110,9 +110,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 /**
  * Make sure that when this is called, the user is told that the quiz will be deleted.
  */
-export async function DELETE(request: NextRequest) {
-    const { searchParams } = request.nextUrl;
-    const id = searchParams.get("id");
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+    const { id } = params;
 
     const database = dbClient.db("quizzesData");
     const quizzes = database.collection("quizzes");
