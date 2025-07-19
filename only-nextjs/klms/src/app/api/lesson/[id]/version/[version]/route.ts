@@ -9,10 +9,9 @@ if (!uri) {
 const dbClient = new MongoClient(uri);
 
 // GET /api/lesson/[id]/version/[version]
-export async function GET(request: NextRequest) {
-  const { searchParams } = request.nextUrl;
-  const id = searchParams.get("id");
-  const version = searchParams.get("version");
+export async function GET(request: NextRequest, params: { id: string; version: string }) {
+  const id = params.id;
+  const version = params.version;
 
   const database = dbClient.db("lessonsData");
   const lessonsCollection = database.collection("lessons");

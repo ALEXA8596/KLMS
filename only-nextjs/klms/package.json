@@ -28,6 +28,7 @@
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^19.1.0",
     "react-markdown": "^10.1.0",
+    "react-quizlet-flashcard": "^3.0.0",
     "react-share": "^5.2.2",
     "snarkdown": "^2.0.0",
     "uuid": "^11.1.0"

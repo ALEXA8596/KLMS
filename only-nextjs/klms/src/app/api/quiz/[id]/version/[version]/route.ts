@@ -44,19 +44,19 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     // Reconstruct the quiz from patches
     let reconstructedQuiz = {
-        id: quiz.id,
+        // id: quiz.id,
         title: quiz.title,
         description: quiz.description,
         progressBarColor: quiz.progressBarColor,
         nrOfQuestions: quiz.nrOfQuestions,
         questions: quiz.questions,
-        creatorId: quiz.creatorId,
-        dateCreated: quiz.dateCreated,
+        // creatorId: quiz.creatorId,
+        // dateCreated: quiz.dateCreated,
         parentId: quiz.parentId,
-        treeHeight: quiz.treeHeight,
-        version: quiz.version,
-        patches: quiz.patches,
-        history: quiz.history,
+        // treeHeight: quiz.treeHeight,
+        // version: quiz.version,
+        // patches: quiz.patches,
+        // history: quiz.history,
     };
 
     // Apply patches in reverse to get to the requested version
@@ -80,7 +80,15 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     return NextResponse.json({
         success: true,
-        quiz: reconstructedQuiz,
+        quiz: {
+            ...reconstructedQuiz,
+            id: quiz.id,
+            creatorId: quiz.creatorId,
+            dateCreated: quiz.dateCreated,
+            parentId: quiz.parentId,
+            treeHeight: quiz.treeHeight,
+            version: targetVersion,
+        },
         versionInfo: quiz.history[targetVersion - 1],
     });
 }

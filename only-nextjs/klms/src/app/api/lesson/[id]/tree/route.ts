@@ -8,9 +8,8 @@ if (!uri) {
 const dbClient = new MongoClient(uri);
 
 // GET /api/lesson/[id]/tree
-export async function GET(request: NextRequest) {
-  const { searchParams } = request.nextUrl;
-  const id = searchParams.get("id");
+export async function GET(request: NextRequest, params: { id: string }) {
+  const { id } = params;
 
   const database = dbClient.db("lessonsData");
   const lessonsCollection = database.collection("lessons");
@@ -25,7 +24,7 @@ export async function GET(request: NextRequest) {
   const lesson = await lessonsCollection.findOne({ id: id });
 
   if (!lesson) {
-    return NextResponse.json({ success: false, error: "Lesson not found" });
+    return NextResponse.json({ success: false, error: "Lesson not found" }, { status: 404 });
   }
 
   type HierarchyNode = {

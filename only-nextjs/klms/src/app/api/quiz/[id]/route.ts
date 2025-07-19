@@ -23,8 +23,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
                 { status: 401 }
             );
         }
-        const { id } = params;
-        
+        const { id } = await params;
+
         const { title, description, progressBarColor, nrOfQuestions, questions, changelog } = await request.json();
 
         if (!id || !title || !description || !nrOfQuestions || !questions) {
