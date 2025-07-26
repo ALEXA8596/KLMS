@@ -8,15 +8,22 @@ import MDEditor from "@uiw/react-md-editor";
  * Lesson Edit Page Component
  */
 interface LessonPageProps {
-  params: {
+  params: Promise<{
     lessonId: string;
-  };
+  }>;
 }
 
 export default function Lesson({ params }: LessonPageProps) {
   // State to hold search query
   // const [searchQuery, setSearchQuery] = useState('');
-  const { lessonId } = params;
+  const [lessonId, setLessonId] = useState<string>("");
+
+  useEffect(() => {
+    (async () => {
+      const resolvedParams = await params;
+      setLessonId(resolvedParams.lessonId);
+    })();
+  }, [params]);
 
   const [content, setContent] = useState("");
   const [name, setName] = useState("");
@@ -69,19 +76,21 @@ export default function Lesson({ params }: LessonPageProps) {
   const [lesson, setLesson] = useState<LessonType | null>(null);
 
   useEffect(() => {
-    // Fetch data
-    fetch(`/api/lessons/${lessonId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        setLesson(data.lesson || []);
-        setContent(data.lesson.content || "");
-        setName(data.lesson.name || "");
-        setDescription(data.lesson.description || "");
-      })
-      .catch((error) => {
-        console.error("Error fetching post data:", error);
-      });
+    if (lessonId) {
+      // Fetch data
+      fetch(`/api/lessons/${lessonId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          setLesson(data.lesson || []);
+          setContent(data.lesson.content || "");
+          setName(data.lesson.name || "");
+          setDescription(data.lesson.description || "");
+        })
+        .catch((error) => {
+          console.error("Error fetching post data:", error);
+        });
+    }
   }, [lessonId]);
 
   const [loaded, setLoaded] = useState(false);

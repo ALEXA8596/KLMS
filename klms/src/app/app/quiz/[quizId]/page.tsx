@@ -16,7 +16,7 @@ interface QuizParams {
   quizId: string;
 }
 
-export default function QuizPage({ params }: { params: QuizParams | any }) {
+export default function QuizPage({ params }: { params: Promise<QuizParams> }) {
   const [quiz, setQuiz] = useState<any | null>(null);
   const [userData, setUserData] = useState<UserType | null>(null);
   /**
@@ -24,9 +24,8 @@ export default function QuizPage({ params }: { params: QuizParams | any }) {
    */
   const [lessonHierarchy, setLessonHierarchy] = useState(null);
   // user id
-  // Unwrap params if it's a promise (Next.js App Router)
-  // @ts-ignore
-  const { quizId } = typeof params.then === "function" ? React.use(params) : params;
+
+  const [quizId, setQuizId] = useState<string>("");
 
   interface UserType {
     id: string;
@@ -34,36 +33,37 @@ export default function QuizPage({ params }: { params: QuizParams | any }) {
     [key: string]: any;
   }
 
-  // const [posts, setPosts] = useState(null);
-
-  // use useEffect to fetch post data & profile data
+  // Fetch quizId from params using useEffect
+  useEffect(() => {
+    (async () => {
+      const resolvedParams = await params;
+      setQuizId(resolvedParams.quizId);
+    })();
+  }, [params]);
 
   useEffect(() => {
-    fetch(`/api/quizzes/${quizId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        // Expecting data.quiz to be in react-quiz-component format
-        setQuiz(data.quiz || null);
-      })
-      .catch((error) => {
-        console.error("Error fetching quiz data:", error);
-      });
+    if (quizId) {
+      // Fetch quiz data
+      fetch(`/api/quizzes/${quizId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setQuiz(data.quiz || null);
+        })
+        .catch((error) => {
+          console.error("Error fetching quiz data:", error);
+        });
+
+      // Fetch quiz tree hierarchy
+      fetch(`/api/quiz/${quizId}/tree`)
+        .then((res) => res.json())
+        .then((data) => {
+          setLessonHierarchy(data.tree || []);
+        })
+        .catch((error) => {
+          console.error("Error fetching quiz tree hierarchy:", error);
+        });
+    }
   }, [quizId]);
-
-  useEffect(() => {
-    // Fetch data
-    fetch(`/api/quiz/${quizId}/tree`)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        setLessonHierarchy(data.tree || []);
-      })
-      .catch((error) => {
-        console.error("Error fetching quiz tree hierarchy:", error);
-      });
-
-    console.log(lessonHierarchy);
-  }, [quiz]);
 
   useEffect(() => {
     (async () => {

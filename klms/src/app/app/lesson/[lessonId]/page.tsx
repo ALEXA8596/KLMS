@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
 import ShareBar from "@/components/ShareBar";
 
@@ -16,9 +16,9 @@ interface LessonParams {
   lessonId: string;
 }
 
-export default function Lesson({ params }: { params: LessonParams }) {
+export default function Lesson({ params }: { params: Promise<LessonParams> }) {
   // user id
-  const { lessonId } = params;
+  const [lessonId, setLessonId] = useState<string>("");
   interface UserType {
     id: string;
     // Add other user properties as needed
@@ -40,38 +40,38 @@ export default function Lesson({ params }: { params: LessonParams }) {
    * An object with id, name, and children of the lesson, with the children being an array of lessons with id, name and children properties
    */
   const [lessonHierarchy, setLessonHierarchy] = useState(null);
-  // const [lessonId, setLessonId] = useState(lessonId);
 
-  // use useEffect to fetch post data & profile data
+  // Fetch lessonId from params using useEffect
   useEffect(() => {
-    // Fetch data
-    fetch(`/api/lessons/${lessonId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        setLesson(data.lesson || []);
-      })
-      .catch((error) => {
-        console.error("Error fetching post data:", error);
-      });
+    (async () => {
+      const resolvedParams = await params;
+      setLessonId(resolvedParams.lessonId);
+    })();
+  }, [params]);
 
-    console.log(lesson);
+  useEffect(() => {
+    if (lessonId) {
+      // Fetch lesson data
+      fetch(`/api/lessons/${lessonId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setLesson(data.lesson || []);
+        })
+        .catch((error) => {
+          console.error("Error fetching lesson data:", error);
+        });
+
+      // Fetch lesson tree hierarchy
+      fetch(`/api/lesson/${lessonId}/tree`)
+        .then((res) => res.json())
+        .then((data) => {
+          setLessonHierarchy(data.tree || []);
+        })
+        .catch((error) => {
+          console.error("Error fetching lesson tree hierarchy:", error);
+        });
+    }
   }, [lessonId]);
-
-  useEffect(() => {
-    // Fetch data
-    fetch(`/api/lesson/${lessonId}/tree`)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        setLessonHierarchy(data.tree || []);
-      })
-      .catch((error) => {
-        console.error("Error fetching post data:", error);
-      });
-
-    console.log(lessonHierarchy);
-  }, [lesson]);
 
   useEffect(() => {
     (async () => {

@@ -6,9 +6,9 @@ import Header from '@/components/Header';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 interface ProfilePageProps {
-    params: {
+    params: Promise<{
         userId: string;
-    };
+    }>;
 }
 
 export default function Profile({ params }: ProfilePageProps) {
@@ -16,7 +16,8 @@ export default function Profile({ params }: ProfilePageProps) {
     const [posts, setPosts] = useState<any[]>([]);
 
     // user id
-    const { userId: id } = params;
+    const [id, setId] = useState<string>("");
+
     interface UserInfo {
         username?: string;
         description?: string;
@@ -24,20 +25,29 @@ export default function Profile({ params }: ProfilePageProps) {
         [key: string]: any;
     }
 
+    // Fetch userId from params using useEffect
+    useEffect(() => {
+        (async () => {
+            const resolvedParams = await params;
+            setId(resolvedParams.userId);
+        })();
+    }, [params]);
 
     // useEffect to fetch data
     useEffect(() => {
-        // Fetch data
-        fetch(`/api/profile/${id}`)
-            .then((res) => res.json())
-            .then((data) => {
-                console.log(data)
-                setUserInfo(data.user);
-                setPosts(data.user.posts || []);
-            })
-            .catch((error) => {
-                console.error('Error fetching community data:', error);
-            });
+        if (id) {
+            // Fetch data
+            fetch(`/api/profile/${id}`)
+                .then((res) => res.json())
+                .then((data) => {
+                    console.log(data);
+                    setUserInfo(data.user);
+                    setPosts(data.user.posts || []);
+                })
+                .catch((error) => {
+                    console.error('Error fetching community data:', error);
+                });
+        }
     }, [id]);
 
     const [userData, setUserData] = useState(null);

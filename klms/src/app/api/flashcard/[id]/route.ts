@@ -13,7 +13,7 @@ const dbClient = new MongoClient(uri);
 // PUT /api/flashcard/[id]
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string[] }> },
 ) {
   try {
     const token = await getToken({
@@ -28,7 +28,7 @@ export async function PUT(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     const { title, description, cards, changelog } = await request.json();
 
     if (!id || !title || !description || !cards || !Array.isArray(cards)) {

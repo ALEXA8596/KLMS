@@ -7,11 +7,41 @@ import Header from "@/components/Header";
  * Home Page Component
  */
 export default function Home() {
-  const [userData, setUserData] = useState(null);
-  const [lessons, setLessons] = useState([]);
-  const [quizzes, setQuizzes] = useState([]);
-  const [learns, setLearns] = useState([]);
-  const [flashcardSets, setFlashcardSets] = useState([]);
+  interface User {
+    // Add user properties as needed
+    id: string;
+    // other properties...
+  }
+  
+  interface Lesson {
+    id: string;
+    name: string;
+    description: string;
+  }
+  
+  interface Quiz {
+    id: string;
+    title: string;
+    description: string;
+  }
+  
+  interface Learn {
+    id: string;
+    title: string;
+    description: string;
+  }
+  
+  interface FlashcardSet {
+    id: string;
+    title: string;
+    description: string;
+  }
+
+  const [userData, setUserData] = useState<User | null>(null);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [learns, setLearns] = useState<Learn[]>([]);
+  const [flashcardSets, setFlashcardSets] = useState<FlashcardSet[]>([]);
   useEffect(() => {
     (async () => {
       // Fetch user
@@ -130,7 +160,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Learns Row */}
+        {/* Learns Row
         <section>
           <h2 className="text-lg font-bold mb-2">Learning Modules</h2>
           <div className="flex flex-row gap-4 overflow-x-auto">
@@ -156,7 +186,7 @@ export default function Home() {
                   </div>
                 ))}
           </div>
-        </section>
+        </section> */}
 
         {/* Flashcard Sets Row */}
         <section>

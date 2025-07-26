@@ -12,7 +12,7 @@ if (!uri) {
 const dbClient = new MongoClient(uri);
 
 // PUT, DELETE /api/lesson/[id]
-export async function PUT(request: NextRequest, params: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const token = await getToken({
       req: request,
@@ -24,7 +24,7 @@ export async function PUT(request: NextRequest, params: { params: { id: string }
         { status: 401 }
       );
     }
-    const { id } = params.params;
+    const { id } = await params;
     const { content, description, name, changelog } = await request.json();
 
     if (!content || !description || !name) {
@@ -128,8 +128,8 @@ export async function PUT(request: NextRequest, params: { params: { id: string }
 /**
  Make sure that when this is called, the user is told that the lesson's children will be deleted too.
 */
-export async function DELETE(request: NextRequest, params: { params: { id: string } }) {
-  const { id } = params.params;
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
   const database = dbClient.db("lessonsData");
   const lessons = database.collection("lessons");

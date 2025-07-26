@@ -8,8 +8,8 @@ if (!uri) {
 const dbClient = new MongoClient(uri);
 
 // GET /api/lessons/[id]
-export async function GET(request: NextRequest) {
-  const id = request.nextUrl.pathname.split("/").pop();
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
   const database = dbClient.db("lessonsData");
   const lessons = database.collection("lessons");

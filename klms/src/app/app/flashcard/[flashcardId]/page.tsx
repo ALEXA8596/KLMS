@@ -19,7 +19,7 @@ interface FlashcardParams {
 export default function FlashcardPage({
   params,
 }: {
-  params: FlashcardParams | any;
+  params: Promise<FlashcardParams>;
 }) {
   const [flashcard, setFlashcard] = useState<any | null>(null);
   const [userData, setUserData] = useState<UserType | null>(null);

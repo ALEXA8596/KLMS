@@ -9,7 +9,7 @@ if (!uri) {
 const dbClient = new MongoClient(uri);
 
 // GET /api/quiz/[id]/version/[version]
-export async function GET(request: NextRequest, { params }: { params: { id: string, version: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string, version: string }> }) {
     const { id, version } = await params;
 
     if (!id || !version) {

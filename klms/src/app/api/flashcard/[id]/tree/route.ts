@@ -8,8 +8,8 @@ if (!uri) {
 const dbClient = new MongoClient(uri);
 
 // GET /api/lesson/[id]/tree
-export async function GET(request: NextRequest, params: { id: string }) {
-  const id = params.id;
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
   const database = dbClient.db("flashcardsData");
   const flashcardsCollection = database.collection("flashcards");

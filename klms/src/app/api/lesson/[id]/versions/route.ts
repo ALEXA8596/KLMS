@@ -9,8 +9,8 @@ if (!uri) {
 const dbClient = new MongoClient(uri);
 
 // GET /api/lesson/[id]/versions
-export async function GET(request: NextRequest, params: { id: string }) {
-  const { id } = params;
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   // TODO: Implement lesson versions logic
   const database = dbClient.db("lessonsData");
   const lessons = database.collection("lessons");

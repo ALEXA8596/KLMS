@@ -11,7 +11,7 @@ if (!uri) {
 const dbClient = new MongoClient(uri);
 
 // PUT, DELETE /api/quiz/[id]
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const token = await getToken({
             req: request,
@@ -110,8 +110,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 /**
  * Make sure that when this is called, the user is told that the quiz will be deleted.
  */
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-    const { id } = params;
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
 
     const database = dbClient.db("quizzesData");
     const quizzes = database.collection("quizzes");
