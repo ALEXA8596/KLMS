@@ -33,7 +33,7 @@ export default function Login() {
   
   return (
     <div className='h-screen d-flex justify-content-center align-items-center gap-5'>
-      <img src="/hobbscussion.png" alt="Logo" className='pr-3 rounded-circle'/>
+      <img src="/KLMS.png" alt="Logo" className='pr-3 rounded-circle'/>
       <div className='h-auto d-grid gap-3'>
         {/* <h2>Login</h2> */}
         <div className="container rounded border p-4" style={{ backgroundColor: 'rgb(240,236,252)' }}>
