@@ -1,16 +1,41 @@
 import React, { useState } from "react";
 
-function FlashcardForm({ onSubmit, submitting }) {
-  const [flashcardTitle, setFlashcardTitle] = useState("");
-  const [flashcardDescription, setFlashcardDescription] = useState("");
-  const [cards, setCards] = useState([
-    {
-      front: "",
-      back: "",
-      hint: "",
-      difficulty: "medium",
-    },
-  ]);
+
+function FlashcardForm({ onSubmit, submitting, initialValues }) {
+  const [flashcardTitle, setFlashcardTitle] = useState(initialValues?.flashcardTitle || "");
+  const [flashcardDescription, setFlashcardDescription] = useState(initialValues?.flashcardDescription || "");
+  const [cards, setCards] = useState(
+    initialValues?.cards && Array.isArray(initialValues.cards) && initialValues.cards.length > 0
+      ? initialValues.cards
+      : [
+          {
+            front: "",
+            back: "",
+            hint: "",
+            difficulty: "medium",
+          },
+        ]
+  );
+
+  // Update state if initialValues changes
+  React.useEffect(() => {
+    if (initialValues) {
+      setFlashcardTitle(initialValues.flashcardTitle || "");
+      setFlashcardDescription(initialValues.flashcardDescription || "");
+      setCards(
+        initialValues.cards && Array.isArray(initialValues.cards) && initialValues.cards.length > 0
+          ? initialValues.cards
+          : [
+              {
+                front: "",
+                back: "",
+                hint: "",
+                difficulty: "medium",
+              },
+            ]
+      );
+    }
+  }, [initialValues]);
 
   const handleAddCard = () => {
     setCards([

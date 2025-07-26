@@ -25,6 +25,10 @@ export default function Settings() {
     { provider: "", key: "" }
   ]);
   const [isUpdatingApiKeys, setIsUpdatingApiKeys] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<string>("");
+  const [testingApiKey, setTestingApiKey] = useState(false);
+  const [testResult, setTestResult] = useState<string>("");
+  const [showApiKeyValues, setShowApiKeyValues] = useState<{[key: number]: boolean}>({});
 
   useEffect(() => {
     (async () => {
@@ -52,6 +56,13 @@ export default function Settings() {
         console.log(data);
         setUserData(data.user);
         setApiKeys(data.user.apiKeys || []);
+        
+        // Load default provider from localStorage
+        const savedProvider = localStorage.getItem('preferredAiProvider');
+        if (savedProvider) {
+          setSelectedProvider(savedProvider);
+        }
+        
         return () => {};
       }
     })();
@@ -155,6 +166,56 @@ export default function Settings() {
       console.error("Error deleting API key:", error);
       alert(`Error deleting API key: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
+  };
+
+  const testApiKey = async () => {
+    if (!selectedProvider) {
+      alert("Please select an API provider to test.");
+      return;
+    }
+
+    const selectedKey = apiKeys.find(key => key.provider.toLowerCase() === selectedProvider.toLowerCase());
+    if (!selectedKey) {
+      alert(`No API key found for ${selectedProvider}. Please add one first.`);
+      return;
+    }
+
+    setTestingApiKey(true);
+    setTestResult("");
+
+    try {
+      // Test the API key by making a simple AI request
+      const response = await fetch("/api/ai/create/flashcard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          topic: "Test topic for API validation",
+          options: { provider: selectedProvider.toLowerCase() },
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.flashcards) {
+        setTestResult(`✅ API key for ${selectedProvider} is working correctly!`);
+      } else {
+        setTestResult(`❌ API key test failed: ${data.error || "Unknown error"}`);
+      }
+    } catch (error) {
+      console.error("Error testing API key:", error);
+      setTestResult(`❌ API key test failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setTestingApiKey(false);
+    }
+  };
+
+  const toggleApiKeyVisibility = (index: number) => {
+    setShowApiKeyValues(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
   };
 
   return (
@@ -270,19 +331,43 @@ export default function Settings() {
             <ul className="space-y-2">
               {apiKeys.map((key, index) => (
                 <li key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded">
-                  <div>
-                    <span className="font-semibold capitalize">{key.provider}:</span>{" "}
-                    <span className="font-mono text-sm bg-gray-200 px-2 py-1 rounded">
-                      {key.key.substring(0, 8)}...{key.key.substring(key.key.length - 4)}
-                    </span>
+                  <div className="flex items-center space-x-3">
+                    <div>
+                      <span className="font-semibold capitalize">{key.provider}:</span>{" "}
+                      <span className="font-mono text-sm bg-gray-200 px-2 py-1 rounded">
+                        {showApiKeyValues[index] 
+                          ? key.key 
+                          : `${key.key.substring(0, 8)}...${key.key.substring(key.key.length - 4)}`
+                        }
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      className="text-blue-500 hover:text-blue-700 text-xs underline"
+                      onClick={() => toggleApiKeyVisibility(index)}
+                    >
+                      {showApiKeyValues[index] ? "Hide" : "Show"}
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
-                    onClick={() => deleteApiKey(index)}
-                  >
-                    Delete
-                  </button>
+                  <div className="flex space-x-2">
+                    <button
+                      type="button"
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
+                      onClick={() => {
+                        setSelectedProvider(key.provider);
+                        testApiKey();
+                      }}
+                    >
+                      Test
+                    </button>
+                    <button
+                      type="button"
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                      onClick={() => deleteApiKey(index)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -353,6 +438,124 @@ export default function Settings() {
             >
               {isUpdatingApiKeys ? "Saving..." : "Save API Keys"}
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* API Key Selection and Testing */}
+      <div className="bg-white shadow-md rounded-lg p-6 mt-4">
+        <h2 className="text-2xl font-bold">API Key Testing</h2>
+        <p className="mt-2">Test your API keys to ensure they're working correctly.</p>
+        
+        <div className="mt-4 space-y-4">
+          <div>
+            <label htmlFor="providerSelect" className="block text-sm font-medium text-gray-700 mb-2">
+              Select API Provider to Test
+            </label>
+            <select
+              id="providerSelect"
+              className="w-full max-w-md border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-3"
+              value={selectedProvider}
+              onChange={(e) => setSelectedProvider(e.target.value)}
+            >
+              <option value="">Select Provider</option>
+              {apiKeys.map((key, index) => (
+                <option key={index} value={key.provider}>
+                  {key.provider.charAt(0).toUpperCase() + key.provider.slice(1)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex gap-4 items-center">
+            <button
+              type="button"
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+              onClick={testApiKey}
+              disabled={testingApiKey || !selectedProvider}
+            >
+              {testingApiKey ? "Testing API Key..." : "Test API Key"}
+            </button>
+            
+            {testingApiKey && (
+              <div className="inline-flex items-center px-3 py-2 bg-blue-100 border border-blue-200 rounded-lg">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                <span className="text-blue-800 text-sm">Testing connection...</span>
+              </div>
+            )}
+          </div>
+
+          {testResult && (
+            <div className={`p-4 rounded-md ${
+              testResult.includes('✅') 
+                ? 'bg-green-50 border border-green-200' 
+                : 'bg-red-50 border border-red-200'
+            }`}>
+              <p className={`text-sm font-medium ${
+                testResult.includes('✅') ? 'text-green-800' : 'text-red-800'
+              }`}>
+                {testResult}
+              </p>
+            </div>
+          )}
+
+          {apiKeys.length === 0 && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+              <p className="text-yellow-800 text-sm">
+                No API keys available to test. Please add at least one API key above.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Default Provider Selection */}
+      <div className="bg-white shadow-md rounded-lg p-6 mt-4">
+        <h2 className="text-2xl font-bold">Default AI Provider</h2>
+        <p className="mt-2">Choose your preferred AI provider for automatic selections.</p>
+        
+        <div className="mt-4">
+          <label htmlFor="defaultProvider" className="block text-sm font-medium text-gray-700 mb-2">
+            Default Provider
+          </label>
+          <select
+            id="defaultProvider"
+            className="w-full max-w-md border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-3"
+            value={selectedProvider}
+            onChange={(e) => setSelectedProvider(e.target.value)}
+          >
+            <option value="">Select Default Provider</option>
+            <option value="hackclub">Hack Club (Free)</option>
+            {apiKeys.map((key, index) => (
+              <option key={index} value={key.provider}>
+                {key.provider.charAt(0).toUpperCase() + key.provider.slice(1)}
+              </option>
+            ))}
+          </select>
+          
+          <div className="mt-3">
+            <button
+              type="button"
+              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+              onClick={() => {
+                localStorage.setItem('preferredAiProvider', selectedProvider);
+                alert('Default provider saved!');
+              }}
+              disabled={!selectedProvider}
+            >
+              Save Default Provider
+            </button>
+          </div>
+
+          <div className="mt-4 bg-blue-50 border border-blue-200 rounded-md p-4">
+            <div className="flex">
+              <div className="ml-3">
+                <p className="text-sm text-blue-700">
+                  <strong>Note:</strong> Your default provider will be pre-selected in AI generation forms throughout the application.
+                  You can always change it later in individual forms if needed.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -20,15 +20,17 @@ const prompt = `You are a teacher and an expert quiz maker. Generate a quiz for 
             "messageForCorrectAnswer": "Message to show when the answer is correct",
             "messageForIncorrectAnswer": "Message to show when the answer is incorrect",
             "explanation": "Explanation of the correct answer",
-            "points": 10
+            "point": 10
         }
     ]
-}`;
+}
+    
+Only respond in valid JSON format. Do not include any other text or characters outside the JSON structure. Do not use a code block or any other formatting.`;
 
 async function generateQuiz(topic, options = { provider: "hackclub" }) {
-  return await callLLM(prompt.replace("{topic}", topic), {
+  return (await callLLM(prompt.replace("{topic}", topic), {
     ...options,
-  });
+  })).choices[0].message.content;
 }
 
 export { generateQuiz, promptToSendToUser, prompt };

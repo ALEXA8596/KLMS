@@ -20,21 +20,27 @@ export async function callLLM(
     max_tokens,
     stream = false,
     extended = false,
-    messages = [],
+    // messages = [],
     think = false,
     parser = LLM.parsers.json,
     tools = [],
     max_thinking_tokens = 1000,
   }
 ) {
-  if (service === "hackclub") {
-    fetch("https://ai.hackclub.com/chat/completions", {
+  if (service == "hackclub") {
+    return await fetch("https://ai.hackclub.com/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        messages,
+        messages: [{
+          role: "user",
+          content: prompt,
+        }],
+        response_format: {
+          type: "json_object"
+        }
       }),
     }).then((response) => {
       if (!response.ok) {
@@ -61,7 +67,12 @@ export async function callLLM(
       max_tokens,
       stream,
       extended,
-      messages,
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
       think,
       parser,
       tools,

@@ -30,6 +30,8 @@ export async function POST(request: NextRequest) {
       options ? options : { provider: "hackclub" }
     );
 
+    console.log(quiz)
+
     return NextResponse.json({ quiz }, { status: 200 });
   } catch (error) {
     console.error("Error generating quiz:", error);

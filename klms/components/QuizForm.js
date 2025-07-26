@@ -1,20 +1,49 @@
 import React, { useState } from "react";
 
-function QuizForm({ onSubmit, submitting }) {
-  const [quizTitle, setQuizTitle] = useState("");
-  const [quizSynopsis, setQuizSynopsis] = useState("");
-  const [questions, setQuestions] = useState([
-    {
-      question: "",
-      questionType: "text",
-      answers: [""],
-      correctAnswer: "",
-      messageForCorrectAnswer: "",
-      messageForIncorrectAnswer: "",
-      explanation: "",
-      point: 0,
-    },
-  ]);
+
+function QuizForm({ onSubmit, submitting, quizTitle: inputQuizTitle, quizSynopsis: inputQuizSynopsis, questions: inputQuestions, initialValues }) {
+  const [quizTitle, setQuizTitle] = useState(initialValues?.quizTitle || inputQuizTitle || "");
+  const [quizSynopsis, setQuizSynopsis] = useState(initialValues?.quizSynopsis || inputQuizSynopsis || "");
+  const [questions, setQuestions] = useState(
+    initialValues?.questions && Array.isArray(initialValues.questions) && initialValues.questions.length > 0
+      ? initialValues.questions
+      : (inputQuestions || [
+          {
+            question: "",
+            questionType: "text",
+            answers: [""],
+            correctAnswer: "",
+            messageForCorrectAnswer: "",
+            messageForIncorrectAnswer: "",
+            explanation: "",
+            point: 0,
+          },
+        ])
+  );
+
+  // Update state if initialValues changes
+  React.useEffect(() => {
+    if (initialValues) {
+      setQuizTitle(initialValues.quizTitle || "");
+      setQuizSynopsis(initialValues.quizSynopsis || "");
+      setQuestions(
+        initialValues.questions && Array.isArray(initialValues.questions) && initialValues.questions.length > 0
+          ? initialValues.questions
+          : [
+              {
+                question: "",
+                questionType: "text",
+                answers: [""],
+                correctAnswer: "",
+                messageForCorrectAnswer: "",
+                messageForIncorrectAnswer: "",
+                explanation: "",
+                point: 0,
+              },
+            ]
+      );
+    }
+  }, [initialValues]);
 
   const handleAddQuestion = () => {
     setQuestions([
