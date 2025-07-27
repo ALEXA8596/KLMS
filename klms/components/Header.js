@@ -12,7 +12,7 @@ export default function Header({ userData }) {
         {/* Add a Home Button */}
         <a href="/app" className="d-flex align-items-center">
           <button>
-            <img src="/klms.png" alt="Logo" className="w-16 m-auto" />
+            <img src="/KLMS.png" alt="Logo" className="w-16 m-auto" />
           </button>
         </a>
 
