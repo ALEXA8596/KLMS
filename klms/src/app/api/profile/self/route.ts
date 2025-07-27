@@ -19,8 +19,8 @@ export async function GET(request: NextRequest) {
       secret: process.env.AUTH_SECRET,
     });
 
-    if (!token || !token.name) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized", token: token }, { status: 401 });
     }
 
     const database = dbClient.db("userData");
