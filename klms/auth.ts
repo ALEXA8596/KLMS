@@ -1,5 +1,10 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { MongoClient } from "mongodb";
+import bcrypt from "bcrypt";
+
+const uri = process.env.MONGODB_URI as string; // Set your MongoDB Atlas URI in .env.local
+const client = new MongoClient(uri);
 
 export const {
   handlers: { GET, POST },
@@ -33,13 +38,29 @@ export const {
             headers: { "Content-Type": "application/json" },
           }
         );
-        const user = await res.json();
 
-        console.log(user);
+        if (!credentials.username || !credentials.password) {
+          return null;
+        }
+
+        await client.connect();
+        const db = client.db("userData"); // Replace with your DB name
+        const users = db.collection("users");
+
+        const user = await users.findOne({ username: credentials.username });
+
+        if (!user) {
+          return null;
+        }
+
+        const passwordMatch = await bcrypt.compare(credentials.password, user.hashedPassword);
+
+        if (!passwordMatch) {
+          return null;
+        }
 
         // user.email = user.username;
         user.name = user.username;
-
 
         // If no error and we have user data, return it
         if (res.ok && user) {
@@ -65,7 +86,7 @@ export const {
       //   console.log(session)
       //   console.log("Token:")
       //   console.log(token)
-        // session.user.id = token?.sub || "";
+      // session.user.id = token?.sub || "";
       return session;
     },
     async jwt({ token, user }) {
@@ -73,7 +94,7 @@ export const {
       console.log(token);
       // console.log(user);
       return token;
-    }
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 });
