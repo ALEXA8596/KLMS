@@ -1,5 +1,7 @@
 # KLMS
- 
+
+<img src="assets/page.png">
+
 ### Inspired By: 
 
 - Khan Academy (learning through short texts), 
