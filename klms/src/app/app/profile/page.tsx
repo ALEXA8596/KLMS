@@ -38,8 +38,8 @@ export default function Profile() {
         .then((res) => res.json())
         .then((data) => {
           console.log(data);
-          setUserInfo(data);
-          setLessons(data.lessons || []);
+          setUserInfo(data.user);
+          setLessons(data.user.lessons || []);
         })
         .catch((error) => {
           console.error("Error fetching profile data:", error);
@@ -105,8 +105,8 @@ export default function Profile() {
                     key={lesson.id}
                     className="mb-4 bg-sky-950 rounded-lg p-4"
                   >
-                    <h2 className="text-xl font-bold">{lesson.title}</h2>
-                    <p>{lesson.description}</p>
+                    <h2 className="text-xl font-bold text-white"><a href={`/app/lesson/${lesson.id}`}>{lesson.name}</a></h2>
+                    <p className="text-white">{lesson.description}</p>
                   </article>
                 ))
               ) : (

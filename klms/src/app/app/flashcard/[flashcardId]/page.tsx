@@ -10,11 +10,24 @@ import { faEdit } from "@fortawesome/free-solid-svg-icons";
 
 import Header from "@/components/Header";
 
-import { FlashcardArray } from "@/components/FlashCards";
+import { FlashcardArray } from "@/components/FlashCards/index";
 
 interface FlashcardParams {
   flashcardId: string;
 }
+
+const deck = [
+  {
+    id: 1,
+    front: { html: <div>What is the capital of Alaska?</div> },
+    back: { html: <div>Juneau</div> },
+  },
+  {
+    id: 2,
+    front: { html: <div>What is the capital of California?</div> },
+    back: { html: <div>Sacramento</div> },
+  },
+];
 
 export default function FlashcardPage({
   params,
@@ -48,7 +61,21 @@ export default function FlashcardPage({
       .then((res) => res.json())
       .then((data) => {
         // Expecting data.flashcard to be in flashcard format
-        setFlashcard(data.flashcard || null);
+        console.log(data);
+        data.flashcardSet.cards = data.flashcardSet.cards.map((card: any, index: number) => {
+          card.front.html = `<div>${card.front.html}</div>`;
+          card.back.html = `<div>${card.back.html}</div>`;
+          card.frontHTML = card.front.html;
+          card.backHTML = card.back.html;
+          delete card.difficulty;
+          delete card.hint;
+          return { ...card };
+        });
+        console.log(data.flashcardSet.cards);
+        setFlashcard(data.flashcardSet);
+        // console.log(data.flashcardSet);
+        // console.log(flashcard.cards);
+        console.log(flashcard)
       })
       .catch((error) => {
         console.error("Error fetching flashcard data:", error);
@@ -123,9 +150,8 @@ export default function FlashcardPage({
                   <p className="text-gray-700 mb-6">{flashcard.description}</p>
                 )}
 
-                {/* Simple flashcard display - you'll want to create a proper Flashcard component */}
                 <div className="space-y-4">
-                  <FlashcardArray cards={flashcard.cards} />
+                  {flashcard.cards.length ? <FlashcardArray deck={deck}/> : <p>No flashcards available</p>}
                 </div>
               </div>
             </div>

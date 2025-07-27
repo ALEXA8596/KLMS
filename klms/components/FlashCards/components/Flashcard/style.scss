@@ -1,0 +1,97 @@
+@use '../../styles/mixins' as *;
+
+.flashcard-wrapper {
+  --border-radius: 16px;
+  --back-bg: #ffffff;
+  --front-bg: #ffffff;
+  --box-shadow: 0 0 2.5rem 0 rgba(0, 0, 0, 0.16);
+
+  bottom: 10%;
+  clear: left;
+  perspective: 1000px;
+  transform: none !important;
+  @include box(560px, 340px);
+  border-radius: var(--border-radius);
+}
+
+.flashcard {
+  top: 0;
+  left: 0;
+  @include box();
+  position: absolute;
+  border-radius: inherit;
+  transform-style: preserve-3d;
+  background-color: transparent;
+
+  transition:
+    transform 0.45s ease,
+    opacity 0.45s ease;
+  transition: transform 0.45s ease;
+
+  & * {
+    box-sizing: border-box;
+  }
+
+  &__content {
+    @include box();
+    border-radius: inherit;
+  }
+
+  &__front {
+    background-color: var(--front-bg);
+  }
+
+  &__back {
+    background-color: var(--back-bg);
+  }
+
+  &__front,
+  &__back {
+    top: 0;
+    left: 0;
+    color: black;
+    @include box();
+    position: absolute;
+    border-radius: inherit;
+    backface-visibility: hidden;
+    box-shadow: var(--box-shadow);
+
+    &[data-flip-type='disable'] {
+      cursor: not-allowed;
+    }
+    &[data-flip-type='manual'] {
+      cursor: auto;
+    }
+    &[data-flip-type='auto'] {
+      cursor: pointer;
+    }
+  }
+
+  // Flip directions
+  &[data-flip='true'][data-dir='rtl'] {
+    transform: rotateY(-180deg) !important;
+  }
+  &[data-flip='true'][data-dir='ltr'] {
+    transform: rotateY(180deg) !important;
+  }
+  &[data-flip='true'][data-dir='tb'] {
+    transform: rotateX(-180deg) !important;
+  }
+  &[data-flip='true'][data-dir='bt'] {
+    transform: rotateX(180deg) !important;
+  }
+
+  // Default backside rotation
+  &[data-dir='rtl'] &__back {
+    transform: rotateY(-180deg) !important;
+  }
+  &[data-dir='ltr'] &__back {
+    transform: rotateY(180deg) !important;
+  }
+  &[data-dir='tb'] &__back {
+    transform: rotateX(-180deg) !important;
+  }
+  &[data-dir='bt'] &__back {
+    transform: rotateX(180deg) !important;
+  }
+}

@@ -80,6 +80,8 @@ export async function POST(request: NextRequest) {
         );
     }
 
+    console.log(userId, "User ID from token");
+
     const userDatabase = dbClient.db("userData");
     const userData = userDatabase.collection("users");
     const user = await userData.findOne({ id: userId });

@@ -75,20 +75,23 @@ export default function CreateFlashcardPage() {
         body: JSON.stringify({
           title: flashcardData.flashcardTitle,
           description: flashcardData.flashcardDescription,
-          cards: flashcardData.cards.map(card => ({
-            front: card.front,
-            back: card.back,
-            hint: card.hint,
-            difficulty: card.difficulty
+          cards: flashcardData.cards.map((card, index) => ({
+            front: { html: card.front },
+            back: { html: card.back },
+            hint: { text: card.hint },
+            difficulty: { level: card.difficulty },
+            id: index + 1,
           })),
-          parentId: null, // For now, new flashcards don't have a parent
+          parentId: null,
         }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        setResult(`Flashcard set created successfully!\n\nFlashcard ID: ${data.flashcard.id}\nTitle: ${data.flashcard.title}\nDescription: ${data.flashcard.description}\nCards: ${data.flashcard.cards.length}\n\nYou can view your flashcard set at: /app/flashcard/${data.flashcard.id}`);
+        console.log("Flashcard created successfully:", data);
+        setResult(`Flashcard set created successfully!`);
+        window.location.href = `/app/flashcard/${data.flashcardSet.id}`;
       } else {
         setResult(`Error creating flashcard set: ${data.error}`);
       }

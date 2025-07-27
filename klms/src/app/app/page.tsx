@@ -198,7 +198,7 @@ export default function Home() {
                     key={set.id}
                     className="min-w-[220px] bg-sky-950 rounded-lg p-4 text-white"
                   >
-                    <a href={`/flashcards/${set.id}`}>
+                    <a href={`/app/flashcard/${set.id}`}>
                       <h3 className="text-md font-semibold">{set.title}</h3>
                     </a>
                     <p className="text-sm">{set.description}</p>

@@ -21,9 +21,9 @@ function CreateDropdown() {
                 <Dropdown.Item href="/app/create/flashcard">
                     <FontAwesomeIcon icon={faEdit} className="mr-2" /> Flashcard
                 </Dropdown.Item>
-                <Dropdown.Item href="/app/create/learn">
+                {/* <Dropdown.Item href="/app/create/learn">
                     <FontAwesomeIcon icon={faPencil} className="mr-2" /> Learn
-                </Dropdown.Item>
+                </Dropdown.Item> */}
             </Dropdown.Menu>
         </Dropdown>
     );

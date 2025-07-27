@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     const database = dbClient.db("userData");
     const userData = database.collection("users");
     const user = await userData.findOne({
-      id: token.sub, 
+      username: token.name, 
     });
     if (!user) {
       return NextResponse.json({

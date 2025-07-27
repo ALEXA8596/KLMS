@@ -1,0 +1,80 @@
+@use '../styles/mixins' as *;
+@forward './ladle/styles/theme.scss';
+@forward './ladle/Crispy/index.scss';
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+.ladle-main {
+  @include box();
+  @include make-flex();
+  gap: 1rem;
+  background-color: #ffffff;
+  margin: 10px 10px 20px 10px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 5px 0px;
+  border-radius: 8px;
+  height: auto;
+}
+
+#ladle-root {
+  background-color: rgb(246, 249, 252);
+}
+
+.ladle-resize-handle {
+  background-color: rgb(246, 249, 252);
+  width: 2px;
+  flex-shrink: 0;
+}
+.ladle-aside {
+  @include box(300px, 100%);
+  @include make-flex($align: flex-start, $just: flex-start);
+  flex-direction: column;
+  gap: 1rem;
+  padding: 10px 10px 10px 0px;
+  background-color: rgb(246, 249, 252);
+  overflow-y: auto;
+  & > * {
+    font-family: 'Inter', sans-serif;
+  }
+
+  &::before {
+    content: 'react-quizlet-flashcard';
+    font-size: 22px;
+    font-weight: 600;
+    padding: 10px 0px 0px 0;
+  }
+  & > input {
+    display: none;
+  }
+
+  & > ul {
+    width: 100%;
+  }
+
+  & > ul > li {
+    font-size: 18px;
+    & > ul {
+      .ladle-active > div > div {
+        &::after {
+          content: '◈';
+          font-size: 14px;
+          margin-top: -1px;
+          @include make-flex();
+        }
+      }
+      & > li > div {
+        font-size: 14px;
+        & > div {
+          &::after {
+            content: '◇';
+            font-size: 14px;
+            margin-top: -1px;
+            @include make-flex();
+          }
+          & > svg {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+}

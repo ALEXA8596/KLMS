@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import TopRightDropdown from "@/components/TopRightDropdown";
 import CreateDropDown from "@/components/CreateDropdown";
-import { signOut } from "@/auth";
+import { signOut } from "next-auth/react";
 
 export default function Header({ userData }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -10,13 +10,11 @@ export default function Header({ userData }) {
     <header className="d-flex justify-content-center p-4 relative">
       <div className="d-flex justify-content-between w-100">
         {/* Add a Home Button */}
-        <a href="/home" className="d-flex align-items-center">
+        <a href="/app" className="d-flex align-items-center">
           <button>
-            <img src="/hobbscussion.png" alt="Logo" className="w-32 m-auto" />
+            <img src="/klms.png" alt="Logo" className="w-16 m-auto" />
           </button>
         </a>
-
-        
 
         <div className="relative my-auto">
           <CreateDropDown />
@@ -65,8 +63,9 @@ export default function Header({ userData }) {
           <div className="relative">
             <TopRightDropdown
               signOut={() => {
-                signOut();
-                window.location.href = "/";
+                signOut().then(() => {
+                  window.location.href = "/";
+                });
               }}
             />
           </div>

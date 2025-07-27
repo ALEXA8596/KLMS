@@ -1,0 +1,135 @@
+@use '../../styles/mixins' as *;
+
+.flashcard-array-wrapper {
+  --prev-arrow-color: #1c1b1e;
+  --next-arrow-color: #1c1b1e;
+  --disabled-arrow-color: #a9a9a9;
+
+  gap: 15px;
+  @include box(560px, auto);
+  @include make-flex($dir: column);
+
+  // TODO: Remove this in https://github.com/ABSanthosh/react-quizlet-flashcard/issues/21
+  @include respondAt(625px) {
+    width: 90%;
+  }
+}
+
+.flashcard-array {
+  position: relative;
+  perspective: 1000px;
+  @include box(100%, 340px);
+  @include make-flex($dir: row);
+
+  & > .flashcard-wrapper {
+    &:nth-child(1),
+    &:nth-child(3) {
+      opacity: 0;
+      box-shadow: none;
+      visibility: hidden;
+      pointer-events: none;
+      background: transparent;
+      display: block !important;
+      transform-style: preserve-3d;
+      transition:
+        transform 0.24s ease,
+        opacity 0.12s linear !important;
+    }
+
+    &:nth-child(1) {
+      z-index: 5;
+      right: unset;
+      width: 0px !important;
+      transform: translateX(-10%) rotateY(10deg) translateZ(0) !important;
+
+      .flashcard__front,
+      .flashcard__back {
+        display: none;
+      }
+    }
+
+    &:nth-child(3) {
+      z-index: 5;
+      width: 0px !important;
+      left: unset;
+      transform: translateX(10%) rotateY(-10deg) translateZ(0) !important;
+
+      .flashcard__front,
+      .flashcard__back {
+        display: none;
+      }
+    }
+    &:nth-child(2) {
+      z-index: 6;
+      box-shadow: none;
+      background: transparent;
+      display: block !important;
+      transform-style: preserve-3d;
+      transition:
+        transform 0.24s ease,
+        opacity 0.12s linear;
+    }
+  }
+
+  &__progress-bar {
+    gap: 12px;
+    width: 80%;
+    height: 6px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 3px;
+    background-color: #d0d0d0;
+    @include make-flex($dir: row, $align: center);
+
+    .flashcard-array__progress-bar-fill {
+      top: 0;
+      left: 0;
+      height: 100%;
+      border-radius: 3px;
+      position: absolute;
+      background-color: #4a4a4a;
+      transition: width 0.25s ease-out;
+    }
+  }
+
+  &__controls {
+    gap: 35px;
+    @include box(100%, 40px);
+    @include make-flex($dir: row);
+
+    button {
+      padding: 0;
+      border: none;
+      font-size: 40px;
+      @include box(auto);
+      @include make-flex();
+      background-color: transparent;
+      transition: all 0.12s cubic-bezier(0.47, 0, 0.745, 0.715);
+
+      svg {
+        height: 80%;
+        cursor: pointer;
+
+        path {
+          &[data-name='Left'] {
+            fill: var(--prev-arrow-color);
+          }
+          &[data-name='Right'] {
+            fill: var(--next-arrow-color);
+          }
+        }
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+        svg path {
+          fill: var(--disabled-arrow-color);
+        }
+      }
+    }
+
+    &--count {
+      font-size: 15px;
+    }
+  }
+}

@@ -47,5 +47,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     dateCreated: lesson.dateCreated,
   }));
 
+  delete user.hashedPassword;
+  delete user.sessionCookies;
+  delete user.email;
+
   return NextResponse.json({ success: true, user });
 }

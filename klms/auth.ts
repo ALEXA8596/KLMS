@@ -40,11 +40,11 @@ export const {
         // user.email = user.username;
         user.name = user.username;
 
+
         // If no error and we have user data, return it
         if (res.ok && user) {
           return {
             name: user.username,
-            // email: user.username,
             id: user.id,
           };
         }
@@ -55,15 +55,25 @@ export const {
   ],
   callbacks: {
     session({ session, user, token }) {
+      console.log("Session Callback");
+      console.log(session);
+      console.log(user);
+      console.log(token);
       //   console.log("User:")
       //   console.log(user)
       //   console.log("Session:")
       //   console.log(session)
       //   console.log("Token:")
       //   console.log(token)
-      //   session.user.id = token?.sub || "";
+        // session.user.id = token?.sub || "";
       return session;
     },
+    async jwt({ token, user }) {
+      console.log("JWT Callback");
+      console.log(token);
+      // console.log(user);
+      return token;
+    }
   },
   secret: process.env.NEXTAUTH_SECRET,
 });
