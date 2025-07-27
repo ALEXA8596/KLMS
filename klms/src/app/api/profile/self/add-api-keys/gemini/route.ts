@@ -13,10 +13,11 @@ const dbClient = new MongoClient(uri);
 
 export async function POST(req: NextRequest) {
     const token = await getToken({
-        req,
-        secret: process.env.AUTH_SECRET,
+      req: req,
+      secret: process.env.NEXTAUTH_SECRET,
+      cookieName: "__Secure-authjs.session-token"
     });
-
+    
     if (!token || !token.sub) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
