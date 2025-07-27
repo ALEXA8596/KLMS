@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
     const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET,
+      cookieName: "__Secure-authjs.session-token"
     });
 
     console.log("Token result:", token);

@@ -99,21 +99,26 @@ export const {
     }),
   ],
   callbacks: {
-    session({ session, user, token }) {
+    session({ session, token }) {
       console.log("Session Callback");
-      console.log(session);
-      console.log(user);
-      console.log(token);
-      session.user.id = token?.sub || user.id;
+      console.log("Session:", session);
+      console.log("Token:", token);
+      
+      // Add user ID to session from token
+      if (token?.sub) {
+        session.user.id = token.sub;
+      }
+      
       return session;
     },
-    jwt({ token, user, account, profile, trigger, session}) {
+    async jwt({ token, user, account, profile, trigger, session}) {
       console.log("JWT Callback");
       console.log(token);
-      return {
-        ...token,
-        sub: user?.id || token.sub,
+      if (user) {
+        // First time JWT callback is invoked, user object is available
+        token.sub = user.id;
       }
+      return token;
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
