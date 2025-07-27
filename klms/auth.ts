@@ -30,16 +30,7 @@ export const {
         console.log(credentials);
         console.log(req);
 
-        const res = await fetch(
-          `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/login`,
-          {
-            method: "POST",
-            body: JSON.stringify(credentials),
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-
-        if (!credentials.username || !credentials.password) {
+        if (!credentials.username || !credentials.password || typeof credentials.password !== 'string') {
           return null;
         }
 
@@ -49,7 +40,7 @@ export const {
 
         const user = await users.findOne({ username: credentials.username });
 
-        if (!user) {
+        if (!user || typeof user.hashedPassword !== 'string') {
           return null;
         }
 
@@ -63,7 +54,7 @@ export const {
         user.name = user.username;
 
         // If no error and we have user data, return it
-        if (res.ok && user) {
+        if (user) {
           return {
             name: user.username,
             id: user.id,
