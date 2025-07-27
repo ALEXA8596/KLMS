@@ -16,19 +16,6 @@ interface FlashcardParams {
   flashcardId: string;
 }
 
-const deck = [
-  {
-    id: 1,
-    front: { html: <div>What is the capital of Alaska?</div> },
-    back: { html: <div>Juneau</div> },
-  },
-  {
-    id: 2,
-    front: { html: <div>What is the capital of California?</div> },
-    back: { html: <div>Sacramento</div> },
-  },
-];
-
 export default function FlashcardPage({
   params,
 }: {
@@ -63,8 +50,8 @@ export default function FlashcardPage({
         // Expecting data.flashcard to be in flashcard format
         console.log(data);
         data.flashcardSet.cards = data.flashcardSet.cards.map((card: any, index: number) => {
-          card.front.html = `<div>${card.front.html}</div>`;
-          card.back.html = `<div>${card.back.html}</div>`;
+          card.front.html = `${card.front.html}`;
+          card.back.html = `${card.back.html}`;
           card.frontHTML = card.front.html;
           card.backHTML = card.back.html;
           delete card.difficulty;
@@ -134,24 +121,24 @@ export default function FlashcardPage({
         <Header userData={userData} />
 
         <div className="flex gap-4 px-4">
-          <div className="w-1/4">
+          {/* <div className="w-1/4">
             {lessonHierarchy && (
               <LessonTree
                 hierarchy={lessonHierarchy}
                 currentLessonId={flashcardId}
               />
             )}
-          </div>
+          </div> */}
           {flashcard ? (
             <div className="flex flex-row justify-start bg-green-200 rounded-lg p-4 w-full">
               <div className="w-full">
-                <h1 className="text-2xl font-bold mb-4">{flashcard.name}</h1>
+                <h1 className="text-2xl font-bold mb-4">{flashcard.title}</h1>
                 {flashcard.description && (
                   <p className="text-gray-700 mb-6">{flashcard.description}</p>
                 )}
 
-                <div className="space-y-4">
-                  {flashcard.cards.length ? <FlashcardArray deck={deck}/> : <p>No flashcards available</p>}
+                <div className="">
+                  {flashcard.cards.length ? <FlashcardArray deck={flashcard.cards}/> : <p>No flashcards available</p>}
                 </div>
               </div>
             </div>

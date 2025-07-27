@@ -46,7 +46,13 @@ export default function Flashcard({ style, flipHook, className, front, back }: F
           data-flip-type={
             localFlipHook?.disableFlip ? 'disable' : localFlipHook?.manualFlip ? 'manual' : 'auto'
           }
-          style={front.style}
+          style={{
+            ...front.style,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center'
+          }}
           aria-hidden={isFlipped}
           role='contentinfo'
         >
@@ -57,7 +63,13 @@ export default function Flashcard({ style, flipHook, className, front, back }: F
           data-flip-type={
             localFlipHook?.disableFlip ? 'disable' : localFlipHook?.manualFlip ? 'manual' : 'auto'
           }
-          style={back.style}
+          style={{
+            ...back.style,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center'
+          }}
           aria-hidden={isFlipped}
           role='contentinfo'
         >

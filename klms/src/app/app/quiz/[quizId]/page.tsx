@@ -102,14 +102,14 @@ export default function QuizPage({ params }: { params: Promise<QuizParams> }) {
         <Header userData={userData} />
 
         <div className="flex gap-4 px-4">
-          <div className="w-1/4">
+          {/* <div className="w-1/4">
             {lessonHierarchy && (
               <LessonTree
                 hierarchy={lessonHierarchy}
                 currentLessonId={quizId}
               />
             )}
-          </div>
+          </div> */}
           {quiz ? (
             <div className="flex flex-row justify-start bg-blue-200 rounded-lg p-4 w-full">
               <div className="w-full">

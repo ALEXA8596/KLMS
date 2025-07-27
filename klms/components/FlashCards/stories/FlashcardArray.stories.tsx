@@ -1,6 +1,6 @@
 import type { Story } from '@ladle/react'
 import './styles.scss'
-import { FlashcardArray } from '../main'
+import { FlashcardArray } from '../index'
 import { useFlashcardArray } from '../hooks/useFlashcardArray'
 import { Fragment } from 'react/jsx-runtime'
 import { useState, type CSSProperties } from 'react'
