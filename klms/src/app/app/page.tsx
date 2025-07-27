@@ -114,7 +114,7 @@ export default function Home() {
                     key={lesson.id}
                     className="min-w-[220px] bg-sky-950 rounded-lg p-4 text-white"
                   >
-                    <a href={`/lessons/${lesson.id}`}>
+                    <a href={`/app/lesson/${lesson.id}`}>
                       <h3 className="text-md font-semibold">{lesson.name}</h3>
                     </a>
                     <p className="text-sm">{lesson.description}</p>
@@ -142,7 +142,7 @@ export default function Home() {
                     key={quiz.id}
                     className="min-w-[220px] bg-sky-950 rounded-lg p-4 text-white"
                   >
-                    <a href={`/quizzes/${quiz.id}`}>
+                    <a href={`/app/quiz/${quiz.id}`}>
                       <h3 className="text-md font-semibold">{quiz.title}</h3>
                     </a>
                     <p className="text-sm">{quiz.description}</p>
