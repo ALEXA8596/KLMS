@@ -16,8 +16,10 @@ export async function GET(request: NextRequest) {
   try {
     const token = await getToken({
       req: request,
-      secret: process.env.AUTH_SECRET,
+      secret: process.env.NEXTAUTH_SECRET,
     });
+
+    console.log("Token result:", token);
 
     if (!token) {
       return NextResponse.json({ error: "Unauthorized", token: token }, { status: 401 });
