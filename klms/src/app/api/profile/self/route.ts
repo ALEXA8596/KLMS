@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       secret: process.env.AUTH_SECRET,
     });
 
-    if (!token || !token.sub || !token.name) {
+    if (!token || !token.name) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

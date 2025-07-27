@@ -82,9 +82,11 @@ export const {
 
           // If no error and we have user data, return it
           if (user) {
+            console.log(user);
             return {
               name: user.username,
               id: user.id,
+              email: user.email
             };
           }
           // Return null if user data could not be retrieved
@@ -102,20 +104,16 @@ export const {
       console.log(session);
       console.log(user);
       console.log(token);
-      //   console.log("User:")
-      //   console.log(user)
-      //   console.log("Session:")
-      //   console.log(session)
-      //   console.log("Token:")
-      //   console.log(token)
-      // session.user.id = token?.sub || "";
+      session.user.id = token?.sub || user.id;
       return session;
     },
-    async jwt({ token, user }) {
+    jwt({ token, user, account, profile, trigger, session}) {
       console.log("JWT Callback");
       console.log(token);
-      // console.log(user);
-      return token;
+      return {
+        ...token,
+        sub: user?.id || token.sub,
+      }
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
