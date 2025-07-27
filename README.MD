@@ -35,3 +35,11 @@ A platform where anyone can make their own lessons in order to teach others thei
 - react-quizlet-flashcard - For flashcard presentation
 - @themaximalist/llm.js - For LLM interactions
 - Bootstrap - For visuals & css
+
+## Running
+
+```bash
+cd klms
+npm i
+npm run dev
+```
